@@ -4,9 +4,10 @@
 1. Role of the test
 2. Model-based implementation via Ordinal Logistic Regression (aka Proportional-Odds model)
 3. References
-4. Simulations - how well it replicates the classic test
+4. [Simulations - how well the model-based approach replicates the classic test](#simulations)
 
 ----
+<a name="simulations"></a>
 ## Simulations
 Let's check how good is the approximation by performing some simulations. Nothing will give us better feeling of situaion than that.
 
@@ -30,7 +31,7 @@ I repeated the simulations sample sizes:
 - n_group = 100 - typical situation in clinical trials, where I work
 - n_group = 200 - above that, even small discrepancies between groups will be reported as statisticall significant, so testing at this data size is dangerous, especially without the practical significance defined!).
 
-Actually, the type-1 error and power is totally off topic in this simjlation, we only check how well the methods follow each other.
+Actually, the type-1 error and power is totally off topic in this simulation, we only check how well the methods follow each other.
 
 ---
 Definition of a helper function for printing the figures.
@@ -147,7 +148,7 @@ results %>%
 }
 ```
 ---
-### Simulations
+### Simulations!
 #### The data
 For the ordinal logistic regression I made a dataset consisting of patients' responses to question about the intensity of physical pain they feel, part of the ODI (Oswestry Disability Index). Patients are split into two groups: those taking a new investigated medicine vs. those taking active control (existing standard of care).
 So the model is `ODIPain ~ Arm` (arm stands for the treatment arm).
@@ -217,13 +218,12 @@ simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
                                      under_null = identical(arm_1_prob, arm_2_prob),
                                      samples = samples,
                                      n_group = n_group)
-
   return(result)
 }
 ```
 #### Results
 ##### 20 observations per group
-###### Under H0 - same probabilities of obtating each score across both groups = same ordering of observations
+###### Under H0 - same probabilities of obtating each score in both groups = same ordering of observations
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  c(20, 10, 5, 2, 2, 2),
@@ -231,7 +231,6 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
 plot_differences_between_methods()
 ```
 ![obraz](https://github.com/adrianolszewski/Logistic-regression-is-regression/assets/95669100/22ab75ac-11b4-40d2-ac82-18f440b52706)
-
 
 OK, let's make some notes:
 1. look at the most right plot. The p-values from both methods are well aligned to the line of slope = 1, though some bias is visible towards Test p-values.
@@ -247,7 +246,6 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
                     arm_2_prob =  c(20, 10, 5, 2, 2, 2)) %>%  
 plot_differences_between_methods()
 ```
-![obraz](https://github.com/adrianolszewski/Logistic-regression-is-regression/assets/95669100/c3d2d527-b813-4444-a018-f3dd43a5c980)
 
 Well well weel! Let's make some notes:
 1. Now we went to small and very small p-values, so I log-transformed both axes.
@@ -258,14 +256,13 @@ Well well weel! Let's make some notes:
 5. What's nice, the tests did not contradict each other. 
 
 ###### Again under H1 - this time less "aggressively"
+OK, this was extreme. What about a more comparable groups? The closer to H0, the more "peacefully" the methods behave :-)
+As if below 0.0001 something bad happened. Well, we will observe this pattern in the next simulations.
+
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  rev(c(20, 10, 20, 5, 5, 5)),
                     arm_2_prob =  c(20, 10, 20, 5, 5, 5)) %>%  
   plot_differences_between_methods(log_axes = TRUE)
 ```
-![obraz](https://github.com/adrianolszewski/Logistic-regression-is-regression/assets/95669100/7c539fdb-026d-472d-9ea2-f0266087d098)
-
-OK, this was extreme. What about a more comparable groups? The closer to H0, the more "peacefully" the methods behave :-)
-As if it below 0.0001 something bad happened. Well, we will observe this pattern in the next simulations.
 
