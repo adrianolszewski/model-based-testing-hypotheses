@@ -169,6 +169,12 @@ OK, let's make some notes:
 3. When we look at the area below the 0.05 significance level, we notice 7 false rejections for the model and 6 for test. Remembering we "work under the null" it means, that both methods exceeded the 5% significance level, but not that much. At this sample size it's a pretty good result.
 4. The test and model did not contradict each other except for 1 case, where the difference in p-values very small - 0.002. 
 
+###### 50 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/0816b225-26ab-42d2-872c-7f090fc874d9)
+
+1. Perfect alignment, yet a minimal bias towards test (more conservative) is visible and permanent (100%)
+2. From the other side, the differences between test and model are mostly <0.006 (under the null!) - about 2%, so this bias is completely off importance.
+
 ##### Under H1 - in one group the probabilities of obtating each score are reversed (as in the figure explaining the data above)
 ###### 20 observations per group
 ``` r
@@ -191,8 +197,13 @@ Well! Let's make some notes:
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/71c27faa-0f94-40d6-950d-d45336ae7880)
 
 1. Compared to the 20-sample case, the agreement between both methods is a little bit better
-2. As previously, 0.000001 the relationship breaks but to a smaller magnitude than previously
+2. As previously, 0.000001 the relationship breaks
 3. This time there were no cases where the p-values were opposite (~1 vs. ~0)
+
+###### 50 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/acf2fbcb-e33c-4835-ac24-540d5bf5516d)
+
+1. The divergence pattern is kept and big (2 order of magnitude). Again, it happens at extremely small p-values, where it is completely negligible.
 
 ##### Again under H1 - another (less extreme) setting
 ###### 20 observations per group
@@ -213,6 +224,9 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
 
 The consistency is noticeably better compared to the 20-sample case.
 
+###### 50 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/dcfb1373-3264-484a-9b7a-600d453d5616)
+
 ##### Under mixed conditions
 ###### 20 observations per group
 The probabilties for the scores were sampled with varying probabilities
@@ -231,3 +245,5 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
 ###### 30 observations per group
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/127c5b2c-5d75-451c-bae3-2d79f6ad12f4)
 
+###### 50 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/b708dcff-6535-4a32-948f-06a9ce0f290d)
