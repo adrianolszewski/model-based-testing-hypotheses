@@ -174,6 +174,13 @@ OK, let's make some notes:
 
 1. Perfect alignment, yet a minimal bias towards test (more conservative) is visible and permanent (100%)
 2. From the other side, the differences between test and model are mostly <0.006 (under the null!) - about 2%, so this bias is completely off importance.
+3. Both classic and the model-based tests kept the nominal 5% type-1 error
+
+##### 100 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/95c92419-3c47-4379-af16-f0a079ddf41b)
+
+We can end here, as at this sample size no big improvement can be found.
+Yes, the bias exists and will continue to exist, but the differences between p-values from both methods mostly don't differ by more than 1% and we can totally ignore it.
 
 ##### Under H1 - in one group the probabilities of obtating each score are reversed (as in the figure explaining the data above)
 ###### 20 observations per group
