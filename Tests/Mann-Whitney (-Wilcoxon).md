@@ -144,8 +144,8 @@ simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
 }
 ```
 #### Results
-##### 20 observations per group
-###### Under H0 - same probabilities of obtating each score in both groups = same ordering of observations
+##### Under H0 - same probabilities of obtating each score in both groups = same ordering of observations
+###### 20 observations per group
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  c(20, 10, 5, 2, 2, 2),
@@ -159,9 +159,18 @@ OK, let's make some notes:
 2. It means, that test was more conservative than model.
 3. The fact, that practically all p-values coming a test were larger from the p-values obtained from the model is confirmed also by the bar plot (central-bottom).
 4. When we look at the area below the 0.05 significance level, we notice 9 obervations. Remembering we "work under the null" it means, that both methods exceeded the 5% significance level, reaching 9% in this simulation. At this sample size it's not bad for exploratory purposes.
-5. What's nice, the tests did not contradict each other. 
+5. What's nice, the model and test did not contradict each other. 
 
-###### Under H1 - in one group the probabilities of obtating each score are reversed (as in the figure explaining the data above)
+###### 30 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4c1a0b6b-3217-42e8-904c-ee9a99d6c17c)
+
+1. The p-values from both methods are very well aligned. A small bias is visible towards test
+2. It means, that test was more conservative than model. But the discrepancies are small: between 0.005 and 0.01
+3. When we look at the area below the 0.05 significance level, we notice 7 false rejections for the model and 6 for test. Remembering we "work under the null" it means, that both methods exceeded the 5% significance level, but not that much. At this sample size it's a pretty good result.
+4. The test and model did not contradict each other except for 1 case, where the difference in p-values very small - 0.002. 
+
+##### Under H1 - in one group the probabilities of obtating each score are reversed (as in the figure explaining the data above)
+###### 20 observations per group
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  rev(c(20, 10, 5, 2, 2, 2)),
@@ -172,12 +181,21 @@ plot_differences_between_methods()
 
 Well! Let's make some notes:
 1. Now we went to small and very small p-values, so I log-transformed both axes.
-1. There was a clear relationship between the methods, but the agreement was not perfect, showing a noticeable bias.
+1. There was a relationship between the methods, but the agreement was not perfect, showing a noticeable bias.
 2. This time the model was giving larger p-values, which was confirmed also by the bar plot (central-bottom).
 3. There were two cases where the discrepancy was **total**: the model gave p-values close to 1, while the test resulted in p-values much lower than 0.000001. Discrepancy of such a magnitude is rather unusual! Maybe the model failed to convetge reliably.
+4. Below 0.00-1 the consistency broke completely, discrepancy reached a 1-2 orders of magnitude
+5. **Luckily, for practicaly purposes such discrepancy (at this magnitude of p-values) is totally negligible.**
 
-###### Again under H1 - this time less "aggressively"
-OK, the previous case was rather extreme. What about a more similar groups (closer to H0)? 
+###### 30 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/71c27faa-0f94-40d6-950d-d45336ae7880)
+
+1. Compared to the 20-sample case, the agreement between both methods is a little bit better
+2. As previously, 0.000001 the relationship breaks but to a smaller magnitude than previously
+3. This time there were no cases where the p-values were opposite (~1 vs. ~0)
+
+##### Again under H1 - another (less extreme) setting
+###### 20 observations per group
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  rev(c(20, 10, 20, 5, 5, 5)),
@@ -186,10 +204,17 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
 ```
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/538fb810-d1fb-4bf8-9981-2535b5c284f7)
 
-1. Above p=0.0001 both methods follow each other in a very good agreement. Below 0.0001 the bias increased.
-2. Generally, the closer to H0, the more "peacefully" both methods behave.
+1. The consistency is MUCH better.
+2. Below 0.0001 it brokes again, but of much smaller magnitude (<1 order of)
+3. The closer to H0, the more "peacefully" both methods behave.
+
+###### 30 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/16ef31ac-e370-450e-8065-371e64ea1a11)
+
+The consistency is noticeably better compared to the 20-sample case.
 
 ##### Under mixed conditions
+###### 20 observations per group
 The probabilties for the scores were sampled with varying probabilities
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
@@ -197,10 +222,12 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
                     arm_2_prob =  NULL) %>% 
   plot_differences_between_methods(log_axes = TRUE)
 ```
-
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/faa99b07-c5b4-4161-b0c3-ca887876dec1)
 
 1. Very good consistency of results!
 2. In all cases model was more sensitive than test
 3. There were 3 discrepancies but they were caused by minimal differences, so the situation is very good.
-4. 
+
+###### 30 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/127c5b2c-5d75-451c-bae3-2d79f6ad12f4)
+
