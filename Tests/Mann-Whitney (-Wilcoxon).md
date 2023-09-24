@@ -69,6 +69,10 @@ plot_differences_between_methods <- function(results, sign_level = 0.05, log_axe
   properties <- attr(results, "properties")
   samples <- properties$samples
   n_group <- properties$n_group
+  hypothesis <- case_when(is.na(properties$under_null) ~ "Mixed hypotheses",
+                          properties$under_null ~ "Under H0",
+                          !properties$under_null ~ "Under H1")
+  under_null <- !is.na(properties$under_null) & properties$under_null
 
 results %>% 
   mutate(diff = Test - Model,
@@ -140,7 +144,7 @@ results %>%
     
   geom_abline(slope = 1, intercept = 0, col="green") +
 
-  { if(properties$under_null)
+  { if(under_null)
        list(geom_hline(yintercept = sign_level, linetype="dashed", color="red"),
             geom_vline(xintercept = sign_level, linetype="dashed", color="red"),
             geom_label(aes(x=0.75, y=0.25, 
@@ -164,7 +168,7 @@ results %>%
   labs(title = "P-values: Test vs Model",
        subtitle = sprintf("N=%d samples, group size=%d obs., %s",
                           samples, n_group, 
-                          ifelse(properties$under_null, "Under H0", "Under H1")))
+                          hypothesis))
 )
 
 ((p_rej_discrep + p_pval_ratios +
@@ -221,13 +225,23 @@ lapply(1:100, function(i) {
 
 #### The comparison engine
 ``` r
+
 simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
   set.seed(1000)
+  
+  mixed_hyp <- is.null(arm_1_prob) | is.null(arm_2_prob)
+  
   data.frame( 
     do.call( 
       rbind, 
       lapply(1:samples, function(i) {
         print(i)
+        
+        if(mixed_hyp) {
+          arm_1_prob <- sample(x = 1:10, size = 6, replace = FALSE)
+          arm_2_prob <- sample(x = 1:10, size = 6, replace = FALSE)
+        }
+        
         stack(
           data.frame(arm1 = sample(set, size=n_group, replace=TRUE, prob = arm_1_prob),
                      arm2 = sample(set, size=n_group, replace=TRUE, prob = arm_2_prob))) %>% 
@@ -241,7 +255,7 @@ simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
   
   attr(result, "properties") <- list(arm_1_prob = arm_1_prob, 
                                      arm_2_prob = arm_2_prob, 
-                                     under_null = identical(arm_1_prob, arm_2_prob),
+                                     under_null = ifelse(mixed_hyp, NA, identical(arm_1_prob, arm_2_prob)),
                                      samples = samples,
                                      n_group = n_group)
   return(result)
@@ -272,23 +286,23 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
                     arm_2_prob =  c(20, 10, 5, 2, 2, 2)) %>%  
 plot_differences_between_methods()
 ```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/031ff44c-288f-454c-8774-f5dab2062615)
 
-Well well weel! Let's make some notes:
+Well! Let's make some notes:
 1. Now we went to small and very small p-values, so I log-transformed both axes.
-1. There was a clear relationship between the methods, but it's far from a perfect agreement!
-2. This time model was giving noticeably larger p-values
-3. The fact, that practically all p-values coming a test were larger from the p-values obtained from the model is confirmed also by the bar plot (central-bottom).
-4. When we look at the area below the 0.05 significance level, we notice 9 obervations. Remembering we "work under the null" it means, that both methods exceeded the 5% significance level, reaching 9% in this simulation. At this sample size it's not bad for exploratory purposes.
-5. What's nice, the tests did not contradict each other. 
+1. There was a clear relationship between the methods, but the agreement was not perfect, showing a noticeable bias.
+2. This time the model was giving larger p-values, which was confirmed also by the bar plot (central-bottom).
+3. There were two cases where the discrepancy was **total**: the model gave p-values close to 1, while the test resulted in p-values much lower than 0.000001. Discrepancy of such a magnitude is rather unusual! Maybe the model failed to convetge reliably.
 
 ###### Again under H1 - this time less "aggressively"
-OK, this was extreme. What about a more comparable groups? The closer to H0, the more "peacefully" the methods behave :-)
-As if below 0.0001 something bad happened. Well, we will observe this pattern in the next simulations.
-
+OK, the previous case was rather extreme. What about a more similar groups (closer to H0)? 
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  rev(c(20, 10, 20, 5, 5, 5)),
                     arm_2_prob =  c(20, 10, 20, 5, 5, 5)) %>%  
   plot_differences_between_methods(log_axes = TRUE)
 ```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/538fb810-d1fb-4bf8-9981-2535b5c284f7)
 
+1. Above p=0.0001 both methods follow each other in a very good agreement. Below 0.0001 the bias increased.
+2. Generally, the closer to H0, the more "peacefully" both methods behave.
