@@ -306,3 +306,19 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
 
 1. Above p=0.0001 both methods follow each other in a very good agreement. Below 0.0001 the bias increased.
 2. Generally, the closer to H0, the more "peacefully" both methods behave.
+
+##### Under mixed conditions
+The probabilties for the scores were sampled with varying probabilities
+``` r
+simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
+                    arm_1_prob =  NULL,
+                    arm_2_prob =  NULL) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+```
+
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/faa99b07-c5b4-4161-b0c3-ca887876dec1)
+
+1. Very good consistency of results!
+2. In all cases model was more sensitive than test
+3. There were 3 discrepancies but they were caused by minimal differences, so the situation is very good.
+4. 
