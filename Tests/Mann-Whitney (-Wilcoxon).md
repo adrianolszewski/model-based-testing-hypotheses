@@ -54,8 +54,7 @@ I repeated the simulations sample sizes:
 - n_group = 20 - typical small data size; smaller samples don't make much sense in a reliable research,
 - n_group = 30 - the "magical number" so many statisticians find "magical". Of course it's not, but this constitutes a reasonable "lower limit of data"
 - n_group = 50 - still small data but in a safer area
-- n_group = 100 - typical situation in clinical trials, where I work
-- n_group = 200 - above that, even small discrepancies between groups will be reported as statisticall significant, so testing at this data size is dangerous, especially without the practical significance defined!).
+- n_group = 100 - safe area
 
 Actually, the type-1 error and power is totally off topic in this simulation, we only check how well the methods follow each other, but having the opportunity - we will look at it too :-)
 
