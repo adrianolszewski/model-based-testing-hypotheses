@@ -186,6 +186,32 @@ So actually - with just different methods - I tested the same hypotheses. Just i
 ```
 Fair enough?
 
+In case you didn't believe me (I used smaller vector, as otherwise I'd have to wait by Christmas for it to complete)
+``` r
+> set.seed(1000)
+> x1 <- rnorm(100000)
+> x2 <- rnorm(100000, mean=10)
+> mean(x1-x2)
+[1] -10.00224
+> mean(x1) - mean(x2)
+[1] -10.00224
+> median(x1 - x2)
+[1] -10.00039
+> median(x1) - median(x2)
+[1] -10.00447
+> wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)
+	Wilcoxon rank sum test with continuity correction
+data:  x1 and x2
+W = 0, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ -10.011511  -9.993625
+sample estimates:
+difference in location 
+             -10.00258 
+```
+
+
 ## OK, if it's so problematic, then why even bother?
 Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
 A more advanced inferential analysis often goes FAR beyond that these tests can do.
