@@ -51,6 +51,24 @@ Let's be honest - model-based testing is **MUCH SLOWER** than running a plain go
 tests completed calculations immediately, while for the model it took 2-3 seconds. Now add to this calculation of the AME, emmeans, some adjustments for degrees of freedom and you'll get about 5-10 seconds at just few dozens of observations. Now, imagine you run these procedures over a multiply imputed (MICE) dataset.
 For just 20 imputed datasets x 5-10 seconds it's **100-200 seconds**. At work, on larger data, with more complex models, not rarely it took **5-10 minutes** to complete. In contrast, ordinary testing in this setting may take **no more than just few seconds**.
 
+## Not only it's slow. It may also fail to converge!
+And while tests may fail computationally too, it happens incomparably rarer than with models.
+Just recall how many times you saw messages like "failed to converge", "did not converge", "negative variance estimate" or similar, and how often the plain test failed?
+Well, that's it.
+
+``` r
+> set.seed(1000)
+> stack(
++     data.frame(arm1 = rnorm(50, mean=0),
++                arm2 = rnorm(50, mean=5))) %>% 
++     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++     rms::orm(values ~ ind, data=.)
+Did not converge in 12 iterations
+Unable to fit model using  “orm.fit” 
+Error in switch(x$family, logistic = "Logistic (Proportional Odds)", probit = "Probit",  : 
+  EXPR must be a length 1 vector
+```
+
 ## OK, but try doing THIS with classic tests!
 Classic tests are "simple" (often - yes), FAST and... did I say simple?
 Simple test = simple scenarios.
