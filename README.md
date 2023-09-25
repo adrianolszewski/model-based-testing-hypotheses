@@ -53,9 +53,10 @@ For just 20 imputed datasets x 5-10 seconds it's **100-200 seconds**. At work, o
 
 ## Not only it's slow. It may also fail to converge!
 And while tests may fail computationally too, it happens incomparably rarer than with models.
-Just recall how many times you saw messages like "failed to converge", "did not converge", "negative variance estimate" or similar, and how often the plain test failed?
-Well, that's it.
+Just recall how many times you saw messages like "failed to converge", "did not converge", "negative variance estimate" or similar, and how often the plain test failed? Well, that's it.
 
+Let me show you a trivial case: we will compare two samples from a normal distribution. One will have mean = 0, the other = 5.
+What can be simpler than that?
 ``` r
 > set.seed(1000)
 > stack(
@@ -68,7 +69,7 @@ Unable to fit model using  “orm.fit”
 Error in switch(x$family, logistic = "Logistic (Proportional Odds)", probit = "Probit",  : 
   EXPR must be a length 1 vector
 ```
-while..
+The model failed to converge. While Mann-Whitneh (-Wilcoxon) test did well:
 ``` r
 > set.seed(1000)
 > stack(
@@ -83,8 +84,22 @@ data:  values by ind
 W = 0, p-value < 2.2e-16
 alternative hypothesis: true location shift is not equal to 0
 ```
+Since we work with both normal distributions, let's also check the classic t-test:
+``` r
+> set.seed(1000)
+> stack(
++     data.frame(arm1 = rnorm(50, mean=0.01),
++                arm2 = rnorm(50, mean=5))) %>% 
++     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++     t.test(values ~ ind, data=.) %>% tidy() %>% select(p.value)
+# A tibble: 1 × 1
+   p.value
+     <dbl>
+1 1.73e-46
+```
+As expected!
 
-With just slligthly adjusted mean in the first arm:
+OK, so the model failed. Let's slligthly adjust the mean in the first arm by adding 0.01
 ``` r
 > set.seed(1000)
 > stack(
@@ -107,8 +122,11 @@ Logistic (Proportional Odds) Ordinal Regression Model
           Coef   S.E.   Wald Z Pr(>|Z|)
  ind=arm2 9.1781 1.7356 5.29   <0.0001 
 ```
+And now it worked well.
 
-More "robust" implementations will still provide the estimate, but they may be unreliable:
+Sure, you may say, but cannot we just use a more "robust" implementations, which will succesfully converge?
+OK, let's try with a different implementation!
+Again, we start with N(0, 1) vs. N(5, 1):
 ```r
 > set.seed(1000)
 > stack(
@@ -123,21 +141,9 @@ indarm2 21.30274   19.75443 1.078378
 > 2*pnorm(q=1.078378, lower.tail=FALSE)
 [1] 0.2808651
 ```
-What the heck?! Is this a joke?
-``` r
-> set.seed(1000)
-> stack(
-+     data.frame(arm1 = rnorm(50, mean=0.01),
-+                arm2 = rnorm(50, mean=5))) %>% 
-+     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
-+     t.test(values ~ ind, data=.) %>% tidy() %>% select(p.value)
-# A tibble: 1 × 1
-   p.value
-     <dbl>
-1 1.73e-46
-```
+It converged, but... what?! Is this a joke?! So big p-value?!
 
-Let's increase the mean in one group by 0.01:
+Now let's increase the mean in one group by 0.01 and again use the more "robust" method:
 ``` r
 > set.seed(1000)
 > stack(
@@ -152,8 +158,33 @@ indarm2 9.179891   1.735655 5.289008
 > 2*pnorm(q=5.289008, lower.tail=FALSE)
 [1] 1.229815e-07
 ```
-Now that's fine.
+And now that's fine.
+
+Look at the above example again. Our model-based testing (via proportional-odds model) found N(0, 1) vs. N(5, 1) not statistically significantly different,
+but when we changed the comparison to N(0.01, 1) vs. N(5, 1) - it "magically" worked well!
+
 So, as I said - even if a model *actually converges*, the estimate may be unreliable. Always remember to check your outcomes.
+
+PS: **Wait!** You tested totally different hypotheses with these tests, so maybe that's the issue?
+**NO.** The ordinal logistic regression is equivalent to Mann-Whitney (-Wilcoxon), which tests for stochastic dominance (_NO, NOT medians_).
+Under IID it reduces to pseudo-median difference. Under symmetry of the distributions of [Walsh averages](https://stats.stackexchange.com/questions/215889/prove-the-relationship-between-walsh-averages-and-wilcoxon-signed-rank-test) it gives median difference.
+And, under normality of both distributions, the median difference = mean difference. Which is equal to difference in means (in the normal distribution mean=median)
+Following me?
+So actually - with just different methods - I tested the same hypotheses. Just indirectly.
+```r
+> set.seed(1000)
+> x1 <- rnorm(100000000)
+> x2 <- rnorm(100000000, mean=10)
+> mean(x1-x2)
+[1] -10.00004
+> mean(x1) - mean(x2)
+[1] -10.00004
+> median(x1 - x2)
+[1] -9.99999
+> median(x1) - median(x2)
+[1] -10.00004
+```
+Fair enough?
 
 ## OK, if it's so problematic, then why even bother?
 Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
