@@ -56,7 +56,7 @@ I repeated the simulations sample sizes:
 - n_group = 50 - still small data but in a safer area
 - n_group = 100 - safe area
 
-Actually, the type-1 error and power is totally off topic in this simulation, we only check how well the methods follow each other, but having the opportunity - we will look at it too :-)
+Actually, the type-1 error and power is totally off topic in this simulation, we only check how well the methods follow each other, but having the opportunity - we will look at it too. We only have to remember that this is a long-run property and at 100 replications it will be "just close" rather than "nominal", especiallly at smaller samples. It's normal to have, say 7/100 (=0.07), 12/200 (=0.06) to finally reach 15/300 (=0.05).
 
 ---
 ### Simulations!
@@ -157,7 +157,7 @@ OK, let's make some notes:
 1. look at the most right plot. The p-values from both methods are well aligned to the line of slope = 1, though some bias is visible towards Test p-values.
 2. It means, that test was more conservative than model.
 3. The fact, that practically all p-values coming a test were larger from the p-values obtained from the model is confirmed also by the bar plot (central-bottom).
-4. When we look at the area below the 0.05 significance level, we notice 9 obervations. Remembering we "work under the null" it means, that both methods exceeded the 5% significance level, reaching 9% in this simulation. At this sample size it's not bad for exploratory purposes.
+4. When we look at the area below the 0.05 significance level, we notice 9 obervations. Remembering we "work under the null" it means, that both methods exceeded the 5% significance level, reaching 9% in this simulation. At this sample size it's fine for exploratory analyses.
 5. What's nice, the model and test did not contradict each other. 
 
 ###### 30 observations per group
@@ -253,3 +253,9 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
 
 ###### 50 observations per group
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/b708dcff-6535-4a32-948f-06a9ce0f290d)
+
+
+A few more tests:
+H0: Standard normal distribution, N=20
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/6843a1d4-7cc8-4503-905d-d7b541d62b3b)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/1b49e956-d08a-4bce-97b2-cfb721043184)
