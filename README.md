@@ -68,21 +68,107 @@ Unable to fit model using  “orm.fit”
 Error in switch(x$family, logistic = "Logistic (Proportional Odds)", probit = "Probit",  : 
   EXPR must be a length 1 vector
 ```
+while..
+``` r
+> set.seed(1000)
+> stack(
++     data.frame(arm1 = rnorm(50, mean=0.0),
++                arm2 = rnorm(50, mean=5))) %>% 
++     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++     wilcox.test(values ~ ind, data=.)
 
-## OK, but try doing THIS with classic tests!
-Classic tests are "simple" (often - yes), FAST and... did I say simple?
-Simple test = simple scenarios.
+	Wilcoxon rank sum test with continuity correction
 
+data:  values by ind
+W = 0, p-value < 2.2e-16
+alternative hypothesis: true location shift is not equal to 0
+```
+
+With just slligthly adjusted mean in the first arm:
+``` r
+> set.seed(1000)
+> stack(
++     data.frame(arm1 = rnorm(50, mean=0.01),
++                arm2 = rnorm(50, mean=5))) %>% 
++     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++     rms::orm(values ~ ind, data=.)
+Logistic (Proportional Odds) Ordinal Regression Model
+ 
+ rms::orm(formula = values ~ ind, data = .)
+ 
+                           Model Likelihood               Discrimination    Rank Discrim.    
+                                 Ratio Test                      Indexes          Indexes    
+ Obs              100    LR chi2     133.10    R2                  0.736    rho     0.865    
+ Distinct Y       100    d.f.             1    R2(1,100)           0.733                     
+ Median Y    2.677509    Pr(> chi2) <0.0001    R2(1,100)           0.733                     
+ max |deriv|   0.0009    Score chi2   99.69    |Pr(Y>=median)-0.5| 0.487                     
+                         Pr(> chi2) <0.0001                                                  
+ 
+          Coef   S.E.   Wald Z Pr(>|Z|)
+ ind=arm2 9.1781 1.7356 5.29   <0.0001 
+```
+
+More "robust" implementations will still provide the estimate, but they may be unreliable:
+```r
+> set.seed(1000)
+> stack(
++     data.frame(arm1 = rnorm(50, mean=0.0),
++                arm2 = rnorm(50, mean=5))) %>% 
++     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++     MASS::polr(values_ord ~ ind, data=., Hess = TRUE) %>% summary() %>% coef() %>% as.data.frame() %>% slice(1)
+           Value Std. Error  t value
+indarm2 21.30274   19.75443 1.078378
+
+# p-value
+> 2*pnorm(q=1.078378, lower.tail=FALSE)
+[1] 0.2808651
+```
+What the heck?! Is this a joke?
+``` r
+> set.seed(1000)
+> stack(
++     data.frame(arm1 = rnorm(50, mean=0.01),
++                arm2 = rnorm(50, mean=5))) %>% 
++     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++     t.test(values ~ ind, data=.) %>% tidy() %>% select(p.value)
+# A tibble: 1 × 1
+   p.value
+     <dbl>
+1 1.73e-46
+```
+
+Let's increase the mean in one group by 0.01:
+``` r
+> set.seed(1000)
+> stack(
++     data.frame(arm1 = rnorm(50, mean=0.01),
++                arm2 = rnorm(50, mean=5))) %>% 
++     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++     MASS::polr(values_ord ~ ind, data=., Hess = TRUE) %>% summary() %>% coef() %>% as.data.frame() %>% slice(1)
+           Value Std. Error  t value
+indarm2 9.179891   1.735655 5.289008
+
+# p-value
+> 2*pnorm(q=5.289008, lower.tail=FALSE)
+[1] 1.229815e-07
+```
+Now that's fine.
+So, as I said - even if a model *actually converges*, the estimate may be unreliable. Always remember to check your outcomes.
+
+## OK, if it's so problematic, then why even bother?
+Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
 A more advanced inferential analysis often goes FAR beyond that these tests can do.
 
-- ordinary tests won't allow you to control for covariates. Goodbye more advanced analyses.
-- most classic tests cannot handle more complex m x n-way designs. Want to test some outcome across multiple groups rendered by `sex * visit * treatment_arm`? Forget! You will likely need to run multiple simple tests and they won't be able to detect inter-variable relationships. 
-- most of the classic tests won't be able to test interactions between multiple factors (a few modern ones, like ATS (ANOVA-Type Statistic) or WTS (Wald-Type Statistic) can do this, but only in a limited scope (1-level interaction between just 2 factors).
-- classic tests won't allow you to test simple effects via contrasts, e.g.: "Visit: 3, Arm: Treatment | Male vs Female effect" vs. "Visit 3, Arm: Control | Male vs Female effect". **For the model-based testing it's a piece of cake**.
-- you may simply NOT KNOW which test to use! Believe me or not, there are 850+ (EIGHT HUNDRED FIFTY!) statistical tests and counting. A colleague of mine has been counting them for years (with my little support). With a model - you don't care about all these "version", just provide the formula, set some parameters and test the hypotheses you need. Need a trest for trend? Just user ordinal factor for your time variable.
-- and you will obtain standard errors and confidence intervals for these comparisons!
-- Want to test some hypotheses jointly? Forget with classic tests!
-- Want to effectively adjust for multiple testing using parametric exact method employing the estimated effects and covariaces through the multivariate t distribution ("MVT")? This is far better than Bonferroni :-) But forget with simple tests!
+**Try doing THIS with classic tests!**
+
+1. ordinary tests won't allow you to control for covariates. Goodbye more advanced analyses.
+2. most classic tests cannot handle more complex m x n-way designs. Want to test some outcome across multiple groups rendered by `sex * visit * treatment_arm`? Forget! You will likely need to run multiple simple tests and they won't be able to detect inter-variable relationships. 
+3. most of the classic tests won't be able to test interactions between multiple factors (a few modern ones, like ATS (ANOVA-Type Statistic) or WTS (Wald-Type Statistic) can do this, but only in a limited scope (1-level interaction between just 2 factors).
+4. classic tests won't allow you to test simple effects via contrasts, e.g.: "Visit: 3, Arm: Treatment | Male vs Female effect" vs. "Visit 3, Arm: Control | Male vs Female effect". **For the model-based testing it's a piece of cake**.
+5. you may simply NOT KNOW which test to use! Believe me or not, there are 850+ (EIGHT HUNDRED FIFTY!) statistical tests and counting. A colleague of mine has been counting them for years (with my little support). With a model - you don't care about all these "version", just provide the formula, set some parameters and test the hypotheses you need. Need a trest for trend? Just user ordinal factor for your time variable.
+6. and you will obtain standard errors and confidence intervals for these comparisons!
+7. Want to test some hypotheses jointly? Forget with classic tests!
+8. Want to effectively adjust for multiple testing using parametric exact method employing the estimated effects and covariaces through the multivariate t distribution ("MVT")? This is far better than Bonferroni :-) But forget this flexibility when using plain tests!
 
 Fair enough?
   
