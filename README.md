@@ -51,6 +51,8 @@ Let's be honest - model-based testing is **MUCH SLOWER** than running a plain go
 tests completed calculations immediately, while for the model it took 2-3 seconds. Now add to this calculation of the AME, emmeans, some adjustments for degrees of freedom and you'll get about 5-10 seconds at just few dozens of observations. Now, imagine you run these procedures over a multiply imputed (MICE) dataset.
 For just 20 imputed datasets x 5-10 seconds it's **100-200 seconds**. At work, on larger data, with more complex models, not rarely it took **5-10 minutes** to complete. In contrast, ordinary testing in this setting may take **no more than just few seconds**.
 
+----
+
 ## Not only it's slow. It may also fail to converge!
 And while tests may fail computationally too, it happens incomparably rarer than with models.
 Just recall how many times you saw messages like "failed to converge", "did not converge", "negative variance estimate" or similar, and how often the plain test failed? Well, that's it.
@@ -179,12 +181,18 @@ Following me?
 ``` r
 set.seed(1000); x1 <- rnorm(100000000); x2 <- rnorm(100000000, mean=10)
 sprintf("mean(diff)=%f, diff(means)=%f, median(diff)=%f, diff(medians)=%f, ps-median(diff)=%f",
-mean(x1 - x2), mean(x1) - mean(x2), median(x1 - x2), median(x1) - median(x2), wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)$estimate)
+mean(x1 - x2), mean(x1) - mean(x2), median(x1 - x2), median(x1) - median(x2),
+wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)$estimate)
 ```
 
 Now let's look from another perspective. The ordinal logistic regression naturally fits the Mann-Whitney (-Wilcoxon) null hypothesis. Citing the `rms` package from Prof. Harrell: "_[orm] fits ordinal cumulative probability models for continuous or ordinal response variables [...]. The ordinal cumulative probability models are stated in terms of exceedance probabilities (P rob[Y ≥ y|X]) so that as with OLS larger predicted values are associated with larger Y._"
 
+Check this link (may change in future, when I reorganize things) for the example:
+https://github.com/adrianolszewski/Logistic-regression-is-regression/blob/main/Testing%20hypotheses%20about%20proportions%20using%20logistic%20regression.md#mann-whitney--wilcoxon-test-of-stochastic-equivalence-vs-stochastic-superiority--dominancce
+
 So actually - with just different methods - I tested same hypotheses. Just indirectly.
+
+----
 
 ## OK, if it's so problematic, then why even bother?
 Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
@@ -202,7 +210,9 @@ A more advanced inferential analysis often goes FAR beyond that these tests can 
 8. Want to effectively adjust for multiple testing using parametric exact method employing the estimated effects and covariaces through the multivariate t distribution ("MVT")? This is far better than Bonferroni :-) But forget this flexibility when using plain tests!
 
 Fair enough?
-  
+
+----
+
 ## Conclusions
 So you can see with your own eyes, that model-based testing has LOTS of advantages. But sometimes you will need just a simple, classic test that runs FAST. Especially, if you have lots of tests to do under multiple imputation conditions, with lengthy data, and you are approaching a deadline :-)
 
