@@ -188,9 +188,9 @@ wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)$estimate)
 Now let's look from another perspective. The ordinal logistic regression naturally fits the Mann-Whitney (-Wilcoxon) null hypothesis. Citing the `rms` package from Prof. Harrell: "_[orm] fits ordinal cumulative probability models for continuous or ordinal response variables [...]. The ordinal cumulative probability models are stated in terms of exceedance probabilities (P rob[Y ≥ y|X]) so that as with OLS larger predicted values are associated with larger Y._"
 
 Check this link (may change in future, when I reorganize things) for the example:
-https://github.com/adrianolszewski/Logistic-regression-is-regression/blob/main/Testing%20hypotheses%20about%20proportions%20using%20logistic%20regression.md#mann-whitney--wilcoxon-test-of-stochastic-equivalence-vs-stochastic-superiority--dominancce
+[Mann-Whitney (-Wilcoxon) test of stochastic equivalence (vs. stochastic superiority / dominance)](https://github.com/adrianolszewski/Logistic-regression-is-regression/blob/main/Testing%20hypotheses%20about%20proportions%20using%20logistic%20regression.md#mann-whitney--wilcoxon-test-of-stochastic-equivalence-vs-stochastic-superiority--dominance)
 
-So actually - with just different methods - I tested same hypotheses. Just indirectly.
+So actually - with just different methods - I tested the same hypotheses. Just indirectly.
 
 ----
 
