@@ -172,51 +172,19 @@ So, as I said - even if a model *actually converges*, the estimate may be unreli
 You. Have. Been. Warned.
 
 PS: **Wait!** You tested totally different hypotheses with these methods, so maybe that's the issue?
-**NO.** The ordinal logistic regression is equivalent to Mann-Whitney (-Wilcoxon), which tests for stochastic dominance (_NO, it's NOT about medians_).
-Under IID it reduces to pseudo-median difference. Under symmetry of the distributions of [Walsh averages](https://stats.stackexchange.com/questions/215889/prove-the-relationship-between-walsh-averages-and-wilcoxon-signed-rank-test) it gives median difference.
+**NO.** The ordinal logistic regression with just 2-level categorical predictor and no covariates is equivalent to Mann-Whitney (-Wilcoxon), which tests for stochastic dominance (_NO, it's NOT about medians_). Under IID it reduces to pseudo-median difference. Under symmetry of the distributions of [Walsh averages](https://stats.stackexchange.com/questions/215889/prove-the-relationship-between-walsh-averages-and-wilcoxon-signed-rank-test) it gives median difference.
 And, under normality of both distributions, the median difference = mean difference. Which is equal to difference in means (in the normal distribution mean=median)
 Following me?
-So actually - with just different methods - I tested the same hypotheses. Just indirectly.
 
-```r
-> set.seed(1000)
-> x1 <- rnorm(100000000)
-> x2 <- rnorm(100000000, mean=10)
-> mean(x1-x2)
-[1] -10.00004
-> mean(x1) - mean(x2)
-[1] -10.00004
-> median(x1 - x2)
-[1] -9.99999
-> median(x1) - median(x2)
-[1] -10.00004
-```
-Fair enough?
-
-In case you didn't believe me (I used smaller vector, as otherwise I'd have to wait by Christmas for it to complete)
 ``` r
-> set.seed(1000)
-> x1 <- rnorm(100000)
-> x2 <- rnorm(100000, mean=10)
-> mean(x1-x2)
-[1] -10.00224
-> mean(x1) - mean(x2)
-[1] -10.00224
-> median(x1 - x2)
-[1] -10.00039
-> median(x1) - median(x2)
-[1] -10.00447
-> wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)
-	Wilcoxon rank sum test with continuity correction
-data:  x1 and x2
-W = 0, p-value < 2.2e-16
-alternative hypothesis: true location shift is not equal to 0
-95 percent confidence interval:
- -10.011511  -9.993625
-sample estimates:
-difference in location 
-             -10.00258 
+set.seed(1000); x1 <- rnorm(100000000); x2 <- rnorm(100000000, mean=10)
+sprintf("mean(diff)=%f, diff(means)=%f, median(diff)=%f, diff(medians)=%f, ps-median(diff)=%f",
+mean(x1 - x2), mean(x1) - mean(x2), median(x1 - x2), median(x1) - median(x2), wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)$estimate)
 ```
+
+Now let's look from another perspective. The ordinal logistic regression naturally fits the Mann-Whitney (-Wilcoxon) null hypothesis. Citing the `rms` package from Prof. Harrell: "_[orm] fits ordinal cumulative probability models for continuous or ordinal response variables [...]. The ordinal cumulative probability models are stated in terms of exceedance probabilities (P rob[Y ≥ y|X]) so that as with OLS larger predicted values are associated with larger Y._"
+
+So actually - with just different methods - I tested same hypotheses. Just indirectly.
 
 ## OK, if it's so problematic, then why even bother?
 Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
