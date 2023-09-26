@@ -2,9 +2,10 @@
 
 ## Table of contents
 1. Description of the test
-2. Model-based implementation via Ordinal Logistic Regression (aka Proportional-Odds model)
-3. References
-4. [Simulations - how well the model-based approach replicates the classic test](#simulations)
+2. Model-based implementation via Ordinal Logistic Regression (aka Proportional-Odds model) - categorical ordinal data
+3. Model-based implementation via Ordinal Logistic Regression (aka Proportional-Odds model) - numerical data
+4. References
+5. [Simulations - how well the model-based approach replicates the classic test](#simulations)
 
 ----
 <a name="description"></a>
@@ -256,7 +257,12 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
 
 ----
 
-#### A few more tests:
+#### Comparing numerical data
+So far we were comparing Wilcoxon test and ordinal logistic regression model applied to categorical ordinal data.
+The agreement was very close.
+
+The situation complicates when we 
+
 ##### Under H0: Standard normal distribution
 ###### N=20
 ``` r
