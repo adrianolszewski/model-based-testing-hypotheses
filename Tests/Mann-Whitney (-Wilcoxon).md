@@ -107,7 +107,6 @@ lapply(1:100, function(i) {
 
 #### The comparison engine
 ``` r
-
 simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
   set.seed(1000)
   
@@ -139,7 +138,8 @@ simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
                                      arm_2_prob = arm_2_prob, 
                                      under_null = ifelse(mixed_hyp, NA, identical(arm_1_prob, arm_2_prob)),
                                      samples = samples,
-                                     n_group = n_group)
+                                     n_group = n_group,
+                                     title = "")
   return(result)
 }
 ```
@@ -264,8 +264,246 @@ The agreement was very close, so the selection depended exclusively on the concr
 The situation complicates when we want to extend comparisons to numeric continuous data.
 The ordinal logistic regression can easily handle numerical data, treating them like classes, and esitmating as many intercepts as many unique values exist.
 
-But it won't go so smoothly. For some distributions, like the standard normal one, the procedure willfail to converge, regardless of which one you choose. And better
-choose the one that raises errors rather than returns unreliable estimates(!).
+But it won't go so smoothly. For some distributions, like the standard normal one, the procedure may fail to converge, regardless of the implementation, under the alternative hypothesis. Adding just a little value to certain parameters (e.g. 0.01 to the mean parameter) may solve the problem.
 
-##### Under H0: Standard normal distribution
-###### N=20
+**Warning: Better choose the implementation that raises errors rather than returns unreliable estimates(!)**
+
+For other distributions it works very well. So let's explore a few examples.
+
+We only need to change a bit the function used for simulations:
+```r
+simulate_wilcox_olr_distr <- function(samples, n_group, arm_1_distr, arm_2_distr, title) {
+  set.seed(1000)
+  
+  data.frame( 
+    do.call( 
+      rbind, 
+      lapply(1:samples, function(i) {
+        print(i)
+        stack(
+          data.frame(arm1 = eval(parse(text = gsub("n_group", n_group, arm_1_distr))),
+                     arm2 = eval(parse(text = gsub("n_group", n_group, arm_2_distr))))) %>% 
+          mutate(values_ord = ordered(values), ind = factor(ind)) -> data
+        
+        c(iter = i,
+          n_group = n_group,
+          Test  = tidy(wilcox.test(values~ind, data=data, exact = FALSE, adjust = FALSE))$p.value,
+          Model = tryCatch(joint_tests(rms::orm(values_ord ~ ind, data))$p.value,
+                           error = function(e) {cli::cli_alert_danger("Failed to converge; skip"); NA}))
+      }))) -> result
+  
+  attr(result, "properties") <- list(under_null = identical(arm_1_distr, arm_2_distr),
+                                     title = title,
+                                     samples = samples,
+                                     n_group = n_group)
+  return(result)
+}
+```
+##### Under H0:
+###### Standard normal distribution. N(0, 1) vs. N(0, 1); n_group = 50 (to save time; for bigger value it's even better)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/5481b23d-b715-4e16-b26b-06710dbe49c9)
+
+###### Beta right-skewed β(1, 10) vs. β(1, 10); n_group = 50
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/01301273-2567-4b20-af4b-25639a4d7bbf)
+
+###### Beta left-skewed β(10, 1) vs. β(10, 1); n_group = 50
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/94bd9a3e-cc6c-4f36-81c1-ef24605e6415)
+
+###### Beta U-shaped β(0.5, 0.5) vs. β(0.5, 0.5); n_group = 100
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/b64ebbf8-4e92-440b-9a49-7f7afd238552)
+
+###### Gamma right-skewed Γ(3, 1) vs. Γ(3, 1); n_group = 50
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/a401d6c7-921b-4c4e-9dcb-f1fe29548438)
+
+**Remarks:**
+1. OK, as long as we test similar distributions (under the null), the agreement is perfect regardless of the distribution (Mann-Whitney is a non-parametric test).
+2. We can observe, that bias -test giving a little bigger p-values- is common to all cases, but it does not harm at this magnitude. It's just observable.
+
+##### Under H1 (various cases)
+###### Standard normal distribution. N(5, 1) vs. N(0, 1); n_group = 50 
+```r
+simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
+                          arm_1_distr = "rnorm(n_group, 5, 1)",
+                          arm_2_distr = "rnorm(n_group, 0, 1)",
+                          title = "N(5,1) vs N(0,1)") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = FALSE)
+
+[1] 1
+Did not converge in 12 iterations
+Unable to fit model using  “orm.fit” 
+✖ Failed to converge; skip
+[1] 2
+Did not converge in 12 iterations
+Unable to fit model using  “orm.fit” 
+✖ Failed to converge; skip
+[1] 3
+Did not converge in 12 iterations
+Unable to fit model using  “orm.fit” 
+✖ Failed to converge; skip
+```
+
+Wow! A disaster! It converged for just a few cases and resulted in weird p-values.
+BTW: the MASS::polr() function won't report any issue, but the p-values will be totally wrong.
+So, again, it's better to see the problem.
+
+Look below, if you are not convinced (I temporarily replaced rms::orm() with MASS::polr())
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/c6df164c-23c7-4dbb-9dac-372ed1ac89f0)
+
+Convinced now? OK, let's try another families.
+
+###### Beta right-skewed β(1, 10) vs. β(10, 1); n_group = 50  (for simplicity; It's gives oppositely skewed distributions, like in the example with Likert items)
+``` r
+> simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
++                           arm_1_distr = "rbeta(n_group, 10, 1)",
++                           arm_2_distr = "rbeta(n_group, 1, 10)",
++                           title = "β(10,1) vs β(1,10)") %>% 
++   filter(complete.cases(.)) %>% 
++   plot_differences_between_methods(log_axes = TRUE)
+[1] 1
+Did not converge in 12 iterations
+Unable to fit model using  “orm.fit” 
+✖ Failed to converge; skip
+[1] 2
+Did not converge in 12 iterations
+Unable to fit model using  “orm.fit” 
+✖ Failed to converge; skip
+[1] 3
+Did not converge in 12 iterations
+Unable to fit model using  “orm.fit” 
+✖ Failed to converge; skip
+```
+
+###### Gamma right-skewed Γ(3, 1) vs. Γ(1, 3); n_group = 50
+Surprise! Just a few errors. The methods agreed that the null hypothesis should be rejected, but the p-values were a "free-ride". Luckily, MUCH below any classic significance level.
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4ce571e9-e3f7-4030-afa7-6bc6730ce5be)
+
+But it seems these distributions were too similar.
+When I took two more differing from each other, it failed again:
+
+``` r
+simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
+                          arm_1_distr = "rgamma(n_group, 1, 10)",
+                          arm_2_distr = "rgamma(n_group, 10, 10)",
+                          title = "Γ(1,10) vs Γ(10,10)") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+
+[1] 1
+[1] 2
+Did not converge in 12 iterations
+Unable to fit model using  “orm.fit” 
+✖ Failed to converge; skip
+[1] 3
+Did not converge in 12 iterations
+Unable to fit model using  “orm.fit” 
+✖ Failed to converge; skip
+```
+Although the still - whenever possible - both methods rejected the H0.
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/75d16b9d-6b3f-462b-a124-5e8bc3dcd163)
+
+It looks like under H1 the model-based approach fails completely for the numerical variables.
+
+###### Further investigation
+But why?
+- It's not about too many intercepts (under H0 it worked well)
+- It's not about negative values (under H0 it worked well)
+
+So why? I don't know yet.
+
+When I increased variance a lot and rounded to integers, it started behaving much better:
+``` r
+simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
+                          arm_1_distr = "round(rnorm(50, 10, 5), 0)",
+                          arm_2_distr = "round(rnorm(50, 20, 5), 0)",
+                          title = "[N(10,1)] vs [N(20,1)]") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+```
+No errors. Quite a good agreement between the test and model results.
+
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/f5524268-6749-48be-9981-74c86826a5a9)
+
+So maybe it's the problem with variance?
+
+I returned to exact (not rounded) values, only increased standard deviation and...
+```r
+simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
+                          arm_1_distr = "rnorm(50, 0, 5)",
+                          arm_2_distr = "rnorm(50, 5, 5)",
+                          title = "N(0,5) vs N(5,5)") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+```
+... no errors!
+... and perfect agreement!
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/d8501939-0361-4342-9c04-4f1d0d3227d7)
+
+So what's going on?!
+
+Now we also know it's not a matter of comparing fractional values too (if anyone asked).
+
+**It's probably a matter of dispersion (variance)?**
+
+Let's return to gamma distribution, but not make it wider (increase variance):
+``` r
+simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
+                          arm_1_distr = "rgamma(n_group, 2, .4)",
+                          arm_2_distr = "rgamma(n_group, 4, .4)",
+                          title = "Γ(2,.4) vs Γ(4,.4)") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4cc8cf5a-d119-476d-b5a7-cb9aeef0bcce)
+
+**And one more: wider N(4,4) vs. Γ(4,.4)**
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/f6756416-b662-4c62-9dbb-0f1171331597)
+
+Perfect agreement.
+
+So now let's scale both distributions to a unit-variance:
+```r
+simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
+                          arm_1_distr = "scale(rgamma(n_group, 2, .4), center=FALSE)",
+                          arm_2_distr = "scale(rnorm(n_group, 4, 4), center=FALSE)",
+                          title = "sc(Γ(2,0.4)) vs sc(Γ(4,0.4))") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+```
+... no errors and perfect agreement. Now because we made the distributions too similar to each other (similar mean, variance, only shapes differ).
+
+Let's return to the example with beta distribution, now with both distributions scaled to a unit variance:
+```r
+simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
+                          arm_1_distr = "scale(rbeta(n_group, 10, 1), center=FALSE)",
+                          arm_2_distr = "scale(rbeta(n_group, 1, 10), center=FALSE)",
+                          title = "sc(β(10,1)) vs sc(β(1,10))") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/624e6ea0-56f8-4453-b067-2a731145d388)
+
+Now it works! OK, there's some bias, but, typically - at the very low p-values.
+
+OK, but what about the normal distribution? When I asked the program to compare two distributions with SAME unit-variance, only differing by location, it failed permanently.
+Don't tell me it will work, when I scale it down (to a unit variance again)?
+
+```r
+simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
+                          arm_1_distr = "scale(rnorm(n_group, 0, 1), center=FALSE)",
+                          arm_2_distr = "scale(rnorm(n_group, 5, 1), center=FALSE)",
+                          title = "sc(N(0,1)) vs sc(N(5,1))") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/dbd2db2b-c0a7-476a-a6ad-bf9fcbea9926)
+
+You don't say! So we made a cirle and returned to the case that failed, with similar setting, but now it doesn't fail?
+
+Well, yes I have to investigate it more.
+
+The general conclusion is that:
+1. Mann-Whitney (-Wilcoxon) and the proportional-odds model (ordinal logistic regression) perfectly agree for naturally ordinal data, like Likert items and you can use either, depending on purpose. If you are interested in a more complex comparison of several contrasts, adjusting for covariates - then you have the tool for it.
+2. For numerical data - well, it really depends on various circumstances and it's difficult to say how your model will behave. In general - if it converges, then it's rather in agreement with Mann-Whitney (-Wilcoxon). If it fails to converge, you have bad luck and that's all. Either you will switch to simple Wilcoxon (and resign from covariate adjustments, comparisons, etc.) or admit it failed, or try another method, maybe quantile regression (with different objective and interpretation!).
+
+   
