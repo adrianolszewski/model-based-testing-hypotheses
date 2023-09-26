@@ -259,27 +259,13 @@ simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5,
 
 #### Comparing numerical data
 So far we were comparing Wilcoxon test and ordinal logistic regression model applied to categorical ordinal data.
-The agreement was very close.
+The agreement was very close, so the selection depended exclusively on the concrete scenario.
 
-The situation complicates when we 
+The situation complicates when we want to extend comparisons to numeric continuous data.
+The ordinal logistic regression can easily handle numerical data, treating them like classes, and esitmating as many intercepts as many unique values exist.
+
+But it won't go so smoothly. For some distributions, like the standard normal one, the procedure willfail to converge, regardless of which one you choose. And better
+choose the one that raises errors rather than returns unreliable estimates(!).
 
 ##### Under H0: Standard normal distribution
 ###### N=20
-``` r
-simulate_wilcox_olr_distr(samples = 100, n_group = 20, set = 0:5, arm_1_distr = "rnorm(n_group)", arm_2_distr = "rnorm(n_group)", title = ", N(0,1) vs N(0,1)") %>% 
-  plot_differences_between_methods(log_axes = FALSE)
-```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/762e79e4-5b8e-4f5d-8487-b4ff3579424e)
-###### N=100
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/02b4065b-39cb-4bf6-870e-af69308248cb)
-###### N=100 and 300 samples (just to show what I meant about the type-1 error rate; 15/300 = 0.05)
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/bb86fd2e-db96-4e2b-8150-db450ba9c782)
-
-##### Under H0: gamma distribution G(
-###### N=20
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/762e79e4-5b8e-4f5d-8487-b4ff3579424e)
-###### N=100
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/02b4065b-39cb-4bf6-870e-af69308248cb)
-###### N=100 and 300 samples (just to show what I meant about the type-1 error rate; 15/300 = 0.05)
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/bb86fd2e-db96-4e2b-8150-db450ba9c782)
-
