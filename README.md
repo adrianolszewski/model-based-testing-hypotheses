@@ -124,9 +124,10 @@ Logistic (Proportional Odds) Ordinal Regression Model
 ```
 And now it worked well.
 
-Sure, you may say, but cannot we just use a more "robust" implementations, which will succesfully converge?
+Sure, you may say, but cannot we just use a better implementations able to complete the estimation? Aren't there any such methods?
 OK, let's try with a different implementation!
 Again, we start with N(0, 1) vs. N(5, 1):
+
 ```r
 > set.seed(1000)
 > stack(
@@ -141,7 +142,8 @@ indarm2 21.30274   19.75443 1.078378
 > 2*pnorm(q=1.078378, lower.tail=FALSE)
 [1] 0.2808651
 ```
-It converged, but... what?! Is this a joke?! So big p-value?!
+Cool! This one converged! 
+But... wait, what?! Is this a joke?! So big p-value?! 
 
 Now let's increase the mean in one group by 0.01 and again use the more "robust" method:
 ``` r
@@ -171,6 +173,11 @@ Under IID it reduces to pseudo-median difference. Under symmetry of the distribu
 And, under normality of both distributions, the median difference = mean difference. Which is equal to difference in means (in the normal distribution mean=median)
 Following me?
 So actually - with just different methods - I tested the same hypotheses. Just indirectly.
+
+**AN IMPORTANT LESSON:** Having multiple options, always choose the method that alerts you that something went wrong rather than method that silently pretends nothing wrong happened and happily continues. **It's always better to have NO result rather than having WRONG result.**
+
+You have been warned.
+
 ```r
 > set.seed(1000)
 > x1 <- rnorm(100000000)
