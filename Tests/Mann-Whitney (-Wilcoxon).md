@@ -506,4 +506,5 @@ The general conclusion is that:
 1. Mann-Whitney (-Wilcoxon) and the proportional-odds model (ordinal logistic regression) perfectly agree for naturally ordinal data, like Likert items and you can use either, depending on purpose. If you are interested in a more complex comparison of several contrasts, adjusting for covariates - then you have the tool for it.
 2. For numerical data - well, it really depends on various circumstances and it's difficult to say how your model will behave. In general - if it converges, then it's rather in agreement with Mann-Whitney (-Wilcoxon). If it fails to converge, you have bad luck and that's all. Either you will switch to simple Wilcoxon (and resign from covariate adjustments, comparisons, etc.) or admit it failed, or try another method, maybe quantile regression (with different objective and interpretation!).
 
+
    
