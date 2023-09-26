@@ -179,15 +179,15 @@ And, under normality of both distributions, the median difference = mean differe
 Following me?
 
 ``` r
-set.seed(1000); x1 <- rnorm(100000000); x2 <- rnorm(100000000, mean=10)
-sprintf("mean(diff)=%f, diff(means)=%f, median(diff)=%f, diff(medians)=%f, ps-median(diff)=%f",
-mean(x1 - x2), mean(x1) - mean(x2), median(x1 - x2), median(x1) - median(x2),
-wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)$estimate)
+> set.seed(1000); x1 <- rnorm(1000000); x2 <- rnorm(1000000, mean=10)
+> sprintf("mean(diff)=%f, diff(means)=%f, median(diff)=%f, diff(medians)=%f, ps-median(diff)=%f",
++ mean(x1 - x2), mean(x1) - mean(x2), median(x1 - x2), median(x1) - median(x2), wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)$estimate)
+[1] "mean(diff)=-9.999591, diff(means)=-9.999591, median(diff)=-10.000615, diff(medians)=-9.998330, ps-median(diff)=-9.999202"
 ```
 
 Now let's look from another perspective. The ordinal logistic regression naturally fits the Mann-Whitney (-Wilcoxon) null hypothesis. Citing the `rms` package from Prof. Harrell: "_[orm] fits ordinal cumulative probability models for continuous or ordinal response variables [...]. The ordinal cumulative probability models are stated in terms of exceedance probabilities (P rob[Y ≥ y|X]) so that as with OLS larger predicted values are associated with larger Y._"
 
-Check this link (may change in future, when I reorganize things) for the example:
+Check this link (may change in future, when I reorganize things) for an example of their close agreement not only in terms o p-values, but also the measure of concordance:
 [Mann-Whitney (-Wilcoxon) test of stochastic equivalence (vs. stochastic superiority / dominance)](https://github.com/adrianolszewski/Logistic-regression-is-regression/blob/main/Testing%20hypotheses%20about%20proportions%20using%20logistic%20regression.md#mann-whitney--wilcoxon-test-of-stochastic-equivalence-vs-stochastic-superiority--dominance)
 
 So actually - with just different methods - I tested the same hypotheses. Just indirectly.
