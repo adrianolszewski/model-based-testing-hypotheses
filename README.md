@@ -57,6 +57,9 @@ For just 20 imputed datasets x 5-10 seconds it's **100-200 seconds**. At work, o
 And while tests may fail computationally too, it happens incomparably rarer than with models.
 Just recall how many times you saw messages like "failed to converge", "did not converge", "negative variance estimate" or similar, and how often the plain test failed? Well, that's it.
 
+Models are non-trivial procedures and may computationally fail under "edge" conditions. For exmaple, if you fit logistic regression with all responses equal to TRUE or FALSE, then - well... it's rather obvious that it will fail, right?
+
+Let's take an example of the ordinal logistic regression (aka proportional-odds model) to replicate the Mann-Whitney (-Wilcoxon) test
 Let me show you a trivial case: we will compare two samples from a normal distribution. One will have mean = 0, the other = 5.
 What can be simpler than that?
 ``` r
@@ -101,7 +104,59 @@ Since we work with both normal distributions, let's also check the classic t-tes
 ```
 As expected!
 
-OK, so the model failed. Let's slligthly adjust the mean in the first arm by adding 0.01
+But WHY did the model fail? What's so wrong with such... really nice data (normal distributions)?
+
+To diagnose the problem we need to understand that ordinal logistic regression is related to _stochastic superiority_ (exactly as the Mann-Whitney-Wilcoxon).
+For 2 samples {A, B} (for simplicity) it's the probability that for a randomly picked pair of observations from both groups {ai, bi}, ai > bi
+
+Let's check:
+``` r
+> set.seed(1000)
+> x1 <- rnorm(50, 5, 1)
+> x2 <- rnorm(50, 0, 1)
+> # sample(x1, replace = FALSE) > sample(x2, replace=FALSE) # randomly taken pair
+> all(with(expand.grid(x1, x2), Var1 > Var2))  # all possible pairs
+[1] TRUE  # stochastic dominance = 1
+```
+**Well, no surprise the model failed to converge!**
+The samples are separated enough from each other (too small variance for this shift in means) to have all combinations of pairs meeting the condition ai > bi
+
+If we make the two datasets overlapped at least in 1 place by increasing the variance, it will work:
+```r
+> set.seed(1000)
+> x1 <- rnorm(50, 5, 1.5)
+> x2 <- rnorm(50, 0, 1.5)
+> all(with(expand.grid(x1, x2), Var1 > Var2))
+[1] FALSE  # GOOD!
+
+> set.seed(1000)
+> stack(
++      data.frame(arm1 = rnorm(50, mean=0, sd=1.5),
++                 arm2 = rnorm(50, mean=5, sd=1.5))) %>% 
++      mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++      rms::orm(values ~ ind, data=.)
+Logistic (Proportional Odds) Ordinal Regression Model
+ 
+ rms::orm(formula = values ~ ind, data = .)
+ 
+                           Model Likelihood               Discrimination    Rank Discrim.    
+                                 Ratio Test                      Indexes          Indexes    
+ Obs              100    LR chi2     119.24    R2                  0.697    rho     0.856    
+ Distinct Y       100    d.f.             1    R2(1,100)           0.693                     
+ Median Y    2.118507    Pr(> chi2) <0.0001    R2(1,100)           0.693                     
+ max |deriv|   0.0003    Score chi2   95.99    |Pr(Y>=median)-0.5| 0.465                     
+                         Pr(> chi2) <0.0001                                                  
+ 
+          Coef   S.E.   Wald Z Pr(>|Z|)
+ ind=arm2 6.6679 0.9698 6.88   <0.0001 
+```
+
+Although it's not THAT simple and a model CAN converge if we only a little change "perturb" the data.
+In our case let's add just 0.01 to the mean.
+It won't change much, still the probability of superiority (dominance) is 1 but this time it will work.
+
+PS: I'm still investigating how it works exactly, but it does not surprise me, that altering data a little can make a model work.
+
 ``` r
 > set.seed(1000)
 > stack(
@@ -124,12 +179,14 @@ Logistic (Proportional Odds) Ordinal Regression Model
           Coef   S.E.   Wald Z Pr(>|Z|)
  ind=arm2 9.1781 1.7356 5.29   <0.0001 
 ```
-And now it worked well.
 
-Sure, you may say, but cannot we just use a better implementations able to complete the estimation? Aren't there any such methods?
-OK, let's try with a different implementation!
+**Take-home messages #1:** 
+1. A model can fail to converge if the data are "not nice" :-)
+2. A test may still work in this case
+
+By the way! You may ask: _but cannot we just use a better implementations able to complete the estimation?_
+OK, let's find a different implementation, which will converge in this problematic case
 Again, we start with N(0, 1) vs. N(5, 1):
-
 ```r
 > set.seed(1000)
 > stack(
@@ -144,10 +201,13 @@ indarm2 21.30274   19.75443 1.078378
 > 2*pnorm(q=1.078378, lower.tail=FALSE)
 [1] 0.2808651
 ```
+
 Cool! This one converged! 
 But... wait, what?! Is this a joke?! So big p-value?! 
 
-Now let's increase the mean in one group by 0.01 and again use the more "robust" method:
+**Yes. Because the p-value is simply wrong. The model calculated something but the estimation is "worse than poor".**
+
+Now let's again increase the mean in one group by 0.01
 ``` r
 > set.seed(1000)
 > stack(
@@ -163,13 +223,10 @@ indarm2 9.179891   1.735655 5.289008
 [1] 1.229815e-07
 ```
 And now that's fine.
-
-Look at the above example again. Our model-based testing (via proportional-odds model) found N(0, 1) vs. N(5, 1) not statistically significantly different,
-but when we changed the comparison to N(0.01, 1) vs. N(5, 1) - it "magically" worked well!
-
 So, as I said - even if a model *actually converges*, the estimate may be unreliable. Always remember to check your outcomes.
 
-**AN IMPORTANT LESSON:** Having multiple options, always choose the method that alerts you that something went wrong rather than method that silently pretends nothing wrong happened and happily continues. **It's always better to have NO result rather than having WRONG result.**
+**Take-home messages #2:** 
+3. Having multiple options, always choose the method that alerts you that something went wrong rather than method that silently pretends nothing wrong happened and happily continues. **It's always better to have NO result rather than having WRONG result.**
 
 You. Have. Been. Warned.
 
