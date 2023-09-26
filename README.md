@@ -226,6 +226,7 @@ And now that's fine.
 So, as I said - even if a model *actually converges*, the estimate may be unreliable. Always remember to check your outcomes.
 
 **Take-home messages #2:** 
+
 3. Having multiple options, always choose the method that alerts you that something went wrong rather than method that silently pretends nothing wrong happened and happily continues. **It's always better to have NO result rather than having WRONG result.**
 
 You. Have. Been. Warned.
