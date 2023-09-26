@@ -167,16 +167,16 @@ but when we changed the comparison to N(0.01, 1) vs. N(5, 1) - it "magically" wo
 
 So, as I said - even if a model *actually converges*, the estimate may be unreliable. Always remember to check your outcomes.
 
-PS: **Wait!** You tested totally different hypotheses with these tests, so maybe that's the issue?
-**NO.** The ordinal logistic regression is equivalent to Mann-Whitney (-Wilcoxon), which tests for stochastic dominance (_NO, NOT medians_).
+**AN IMPORTANT LESSON:** Having multiple options, always choose the method that alerts you that something went wrong rather than method that silently pretends nothing wrong happened and happily continues. **It's always better to have NO result rather than having WRONG result.**
+
+You. Have. Been. Warned.
+
+PS: **Wait!** You tested totally different hypotheses with these methods, so maybe that's the issue?
+**NO.** The ordinal logistic regression is equivalent to Mann-Whitney (-Wilcoxon), which tests for stochastic dominance (_NO, it's NOT about medians_).
 Under IID it reduces to pseudo-median difference. Under symmetry of the distributions of [Walsh averages](https://stats.stackexchange.com/questions/215889/prove-the-relationship-between-walsh-averages-and-wilcoxon-signed-rank-test) it gives median difference.
 And, under normality of both distributions, the median difference = mean difference. Which is equal to difference in means (in the normal distribution mean=median)
 Following me?
 So actually - with just different methods - I tested the same hypotheses. Just indirectly.
-
-**AN IMPORTANT LESSON:** Having multiple options, always choose the method that alerts you that something went wrong rather than method that silently pretends nothing wrong happened and happily continues. **It's always better to have NO result rather than having WRONG result.**
-
-You have been warned.
 
 ```r
 > set.seed(1000)
@@ -217,7 +217,6 @@ sample estimates:
 difference in location 
              -10.00258 
 ```
-
 
 ## OK, if it's so problematic, then why even bother?
 Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
