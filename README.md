@@ -19,28 +19,38 @@ You can start from:
 - [Handouts for Lecture Stat 461-561 Wald, Rao and Likelihood Ratio Tests](https://www.cs.ubc.ca/~arnaud/stat461/lecture_stat461_WaldRaoLRtests_handouts_2008.pdf)
 - [STAT 713 MATHEMATICAL STATISTICS II - Lecture Notes](https://people.stat.sc.edu/Tebbs/stat713/s18notes.pdf)
 
-Take home messages:
-1. We will observe at work mostly two methods: Wald's and LRT, and see how they behave.
+Take home messages:the 
+1. In our considerations we'll primarily employ two statistical methods: Wald's test and Likelihood Ratio Test (LRT). We'll closely examine how these methods behave in various scenarios.
 
-2. For you now it's important to know, that asymptotically they yield equivalent results.
+2. For you now it's important to know, that asymptotically these methods yield equivalent results. Asymptotically means "at infinite sample size". In real-world scenarios they will always differ, but unless you hit the "edge case", they will be rather consistent.
   
-3. But the MAY also diverge **noticeably** in "edge cases", where the curve representing log-likelihood of a model parameter in the parameter space doesn't form a parabola. If you read either of the 2 first links, you will know what I mean. We will observe it...
+3. But the MAY also diverge **noticeably** in "edge cases", where the log-likelihood curve of a model parameter in the parameter space deviates from a parabolic shape. If you read either of the 2 first links, you will know what I mean. We will observe it...
 
 4. Wald's test is extremely useful for testing hypotheses in both
    a. covariate-adjusted planned comparisons via contrasts - **that's the ESSENCE of work in experimental research!**
    b. AN[C]OVA-type joint testing of model coefficients assessing the main and interaction effects (like the classic ANOVA does)
 
-5. Wald's is fast (single model fitting).
+5. Wald's is faster than LR as it needs only a single model fitting.
   
-6. Wald's may be too liberal or too conservative. There are many simulations over the Internet showing, that sometimes it's the "poorest" method and sometimes - the superior one. No easy judgement.
+6. LRT is often considered more conservative than Wald's test. It's less likely to reject a null hypothesis when it's true (i.e., it has a lower Type I error rate). This conservativeness can be advantageous when you want to avoid making false-positive errors, such as in clinical trials or other critical applications. In contrast, Wald's test can sometimes be more liberal, leading to a higher likelihood of false positives. It may not perform well when sample sizes are small or when the distribution of the parameter estimates deviates from normality. But often Wald's is the best we can do.
    
-7. Wald's it's the ONLY available method in non-likelihood models, like GEE estimation of quantile regression. So better learn about it.
+7. Wald's is also the ONLY available method in non-likelihood models, like GEE estimation or quantile regression. Depiste it weaknesses, it gains importance!
+  
+8. But sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? :)
 
-8. Likelihood Ratio is employed through model comparisons: one model with the term we want to assess and one model without it (you can also compare other settings, like covariance structures) and is often found as better than Wald's. It allows one for performing AN[C]OVA-type analyses, but doesn't help in covarite-adjusted planned comparisons. Requires careful specification of the model terms!
+9. Likelihood Ratio is employed through model comparisons: one model with the term we want to assess and one model without it (you can also compare other settings, like covariance structures) and is often found as **more accurrate** than Wald's.
 
-9. LRT fits 2 models, so it doubles the time needed to complete compared to Wald's. Sometimes it really MAKES an inssue.
+10. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in covarite-adjusted planned comparisons.
 
-10. For simple testing 2+ groups (single n-level categorical predictor) the LRT is usually preferred. For planned and exploratory assessment of various contrasts - Wald's is the method of choice.
+11. LRT involves fitting two models, doubling the time needed compared to Wald's test. This additional computational cost can be a consideration. Sometimes it really MAKES an inssue, especially if you need to test several predictor variables, so you need to compare more and more nested models!
+
+12. Wald's approach takes full advantage of the estimated parameter and covariance matrix, which means that "sky is the limit" when testing.
+    
+13. To conclude: for simple testing 2+ groups (single n-level categorical predictor) the LRT is usually preferred. For planned and exploratory assessment of various contrasts - Wald's is often the method of choice. But there is no univerally good scenario.
+
+14. "_When the sample size is small to moderate, the Wald test is the least reliable of the three tests. We should not trust it for such a small n as in this example (n = 10). Likelihood-ratio inference and score-test based inference are better in terms of actual error probabilities coming close to matching nominal levels. A marked divergence in the values of the three statistics indicates that the distribution of the ML estimator may be far from normality. In that case, small-sample methods are more appropriate than large-sample methods._ (Agresti, A. (2007). An introduction to categorical data analysis (2nd edition). John Wiley & Sons.)"
+
+15. Now, a mandatory reading! [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/), which perfectly summarized our above considerations: "_In conclusion, although the likelihood ratio approach has clear statistical advantages, computationally the Wald interval/test is far easier. In practice, provided the sample size is not too small, and the Wald intervals are constructed on an appropriate scale, they will usually be reasonable (hence their use in statistical software packages). In small samples however the likelihood ratio approach may be preferred._"
 /
 
 This way, by employing appropriate model followed by the metioned testing procedures, you can obtain perform complex planned and exploratory hypothesis testing, perform  Type-II and Type-III ANOVA-like analysis over Poisson or logistic regression... Actually, you can plug-in any single model.
@@ -74,14 +84,13 @@ How about the _quantile regression_ (especially combined with random effects) ca
 
 Fair enough?
 
-## But it's SLOW!
-Let's be honest - model-based testing can be (and IS) **SLOWER** than running a plain good-old test, especially if you perform then under multiple imputation approach to missing data (where you repeat the same analysis on each of dozens of imputed datasets and then pool the results.), especially if you use the Likelihood Ratio testing (LRT).
+## But the model-based testing is SLOW!
+Let's be honest - model-based testing can be (and IS) **SLOWER** than running a plain good-old test, especially if you perform then under multiple imputation approach to missing data (where you repeat the same analysis on each of dozens of imputed datasets and then pool the results.), especially if you also employ the Likelihood Ratio testing (LRT).
 
 **But - well - did you expect a free lunch?
 As I said in the beginning - simple tests do simple jobs and cannot do anything more. If you want more, you have to pay for it. That's as simple.**
 
 ----
-
 ## Not only it's slow. It may also fail to converge!
 Yes, they may and sometimes they do.
 
@@ -90,22 +99,13 @@ Just recall how many times you saw messages like "failed to converge", "did not 
 
 Models are non-trivial procedures and may computationally fail under "edge" conditions. For exmaple, if you fit logistic regression with all responses equal to TRUE or FALSE, then - well... it's rather obvious that it will fail, right?
 
-----
-
-## Even worse, different method of testing can yield OPPOSITE results!
-
-Yes, Wald's and LRT may yield opposite results, e.g. Wald's p-value = 0.8 while LRT p-value < 0.001.
-
-But that doesn't happen very often, rather in "edge cases". That's why doing statistical analysis is not just brainless "click-and-go" task!
-If you anticipate that something bad may happen, VALIDATE your calculations using a different method. It doesn't have to bring SAME results (well, it's different :-) ) but at least you will be able to assess if they are approximately consistent.
-
-If you run the ordinal logistic regression over Likert data and obtain Wald's p-value = 0.3 and LRT p-value = 0.0003, then you can also simplify it for a while and check with the Mann-Whitney (-Wilcoxon) test or even run the OLS with ranked response (it's a very good method!).
-
-**And always - always start with the EDA (exploratory data analysis), plot your data, know it. Otherwise you won't even suspect what could go wrong. **
-
 Let's take an example of the ordinal logistic regression (aka proportional-odds model) to replicate the Mann-Whitney (-Wilcoxon) test
 Let me show you a trivial case: we will compare two samples from a normal distribution: N(mean=0, SD=1) vs. N(mean=5, SD=1).
 What can be simpler than that?
+
+/ PS: yes, YOU CAN use the ordinal logistic regression for continuous numerical data. You will have just dozens of intercepts :)
+Read: [If you like the Wilcoxon test you must like the proportional odds model](https://www.fharrell.com/post/wpo/), [Equivalence of Wilcoxon Statistic and Proportional Odds Model](https://www.fharrell.com/post/powilcoxon/), and (best repository on this topic I've ever seen!) [Resources for Ordinal Regression Models](https://www.fharrell.com/post/rpo/) /
+
 ``` r
 > set.seed(1000)
 > stack(
@@ -118,40 +118,48 @@ Unable to fit model using  “orm.fit”
 Error in switch(x$family, logistic = "Logistic (Proportional Odds)", probit = "Probit",  : 
   EXPR must be a length 1 vector
 ```
-The model failed to converge. While Mann-Whitneh (-Wilcoxon) test did well:
+As you can see, the model failed to converge. The Mann-Whitney (-Wilcoxon) test did well, however:
 ``` r
 > set.seed(1000)
 > stack(
-+     data.frame(arm1 = rnorm(50, mean=0.0),
-+                arm2 = rnorm(50, mean=5))) %>% 
-+     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
-+     wilcox.test(values ~ ind, data=.)
++      data.frame(arm1 = rnorm(50, mean=0.0),
++                 arm2 = rnorm(50, mean=5))) %>% 
++      mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++      wilcox.test(values ~ ind, data=., conf.int = TRUE)
 
 	Wilcoxon rank sum test with continuity correction
 
 data:  values by ind
 W = 0, p-value < 2.2e-16
 alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ -5.772126 -4.977111
+sample estimates:
+difference in location 
+              -5.34864 
 ```
-Since we work with both normal distributions, let's also check the classic t-test:
+Since we used normal distributions, let's also check the classic t-test:
 ``` r
 > set.seed(1000)
 > stack(
-+     data.frame(arm1 = rnorm(50, mean=0.01),
-+                arm2 = rnorm(50, mean=5))) %>% 
-+     mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
-+     t.test(values ~ ind, data=.) %>% tidy() %>% select(p.value)
-# A tibble: 1 × 1
-   p.value
-     <dbl>
-1 1.73e-46
++          data.frame(arm1 = rnorm(50, mean=0.01),
++                     arm2 = rnorm(50, mean=5))) %>% 
++          mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++          t.test(values ~ ind, data=., var.equal = TRUE) 
+
+	Two Sample t-test
+
+data:  values by ind
+t = -26.803, df = 98, p-value < 2.2e-16
+alternative hypothesis: true difference in means between group arm1 and group arm2 is not equal to 0
+95 percent confidence interval:
+ -5.735385 -4.944653
+sample estimates:
+mean in group arm1 mean in group arm2 
+        -0.1486302          5.1913886
 ```
-Sometimes a model CAN converge if we only a little change "perturb" the data.
-In our case let's add just 0.01 to the mean.
-It won't change much, still the probability of superiority (dominance) is 1 but this time it will work.
-
-PS: I'm still investigating how it works exactly, but it does not surprise me, that altering data a little can make a model work.
-
+As expected. In parametric case Wilcoxon and t-test are naturally consistent.
+Sometimes a model that failed can converge if we a little "perturb" the data. In our case let's add just 0.01 to the mean.
 ``` r
 > set.seed(1000)
 > stack(
@@ -174,13 +182,30 @@ Logistic (Proportional Odds) Ordinal Regression Model
           Coef   S.E.   Wald Z Pr(>|Z|)
  ind=arm2 9.1781 1.7356 5.29   <0.0001 
 ```
+----
+
+## Even worse, you just said that different method of testing can yield OPPOSITE results!
+
+Yes. Not only Wald's calculation may fail entirely, while LRT will be still available, but also Wald's and LRT may yield opposite results, e.g. Wald's p-value = 0.8 vs. LRT p-value < 0.001.
+
+But that doesn't happen very often, rather in "edge cases". That's why doing statistical analysis is not just a brainless "click-and-go" task!
+
+This is summarized in the article I already cited ([Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)): "Further, a situation in which the Wald approach completely fails while the likelihood ratio approach is still (often) reasonable is when testing whether a parameter lies on the boundary of its parameter space." 
+
+If you anticipate that something bad may happen, VALIDATE your calculations using a different method. It doesn't have to bring SAME results (it's a different method) but at least you will be able to assess if they are approximately consistent.
+
+If, for instance, you run the ordinal logistic regression over Likert data and obtain Wald's p-value = 0.3 and LRT p-value = 0.0003, then you can also simplify it for a while and check with the Mann-Whitney (-Wilcoxon) test or even run the OLS with ranked response (it's a very good method!).
+
+**And always - always start with the EDA (exploratory data analysis), plot your data, know it. Otherwise you won't even suspect what could go wrong.**
 
 **Take-home messages #1:** 
 1. A model can fail to converge if the data are "not nice" :-)
-2. A test may still work in this case
+2. Wald's approach may fail, while the LRT will do well.
+3. A test may still work in this case (like the LRT).
 
 By the way! You may ask: _but cannot we just use a better implementations able to complete the estimation?_
-OK, let's find a different implementation, which will converge in this problematic case
+
+Good question! Let's find a different implementation, which will converge in this problematic case. There's one MASS::polr()
 Again, we start with N(0, 1) vs. N(5, 1):
 ```r
 > set.seed(1000)
@@ -196,13 +221,32 @@ indarm2 21.30274   19.75443 1.078378
 > 2*pnorm(q=1.078378, lower.tail=FALSE)
 [1] 0.2808651
 ```
+Good! This one converged!  But... wait a minute! What?! Is this a joke?! Why so big p-value?! 
 
-Cool! This one converged! 
-But... wait, what?! Is this a joke?! So big p-value?! 
+**Because the p-value is simply wrong. We are exactly in the "edge case" and Wald's approach failed evidently.**
 
-**Yes. Because the p-value is simply wrong. The model calculated something but the estimation is "worse than poor".**
+And what about the LRT? Is this any better?
+```r
+> set.seed(1000)
+> stack(
++  data.frame(arm1 = rnorm(50, mean=0.0),
++             arm2 = rnorm(50, mean=5))) %>% 
++      mutate(values_ord = ordered(values), ind = factor(ind)) -> ord_data
+ 
+> model_full <-  MASS::polr(values_ord ~ ind, data=ord_data, Hess = TRUE)
+> model_intercept <- MASS::polr(values_ord ~ 1, data=ord_data, Hess = TRUE)
+ 
+> anova(model_full, model_intercept)
+Likelihood ratio tests of ordinal regression models
 
-Now let's again increase the mean in one group by 0.01
+Response: values_ord
+  Model Resid. df Resid. Dev   Test    Df LR stat. Pr(Chi)
+1     1         1   921.0340                              
+2   ind         0   782.4094 1 vs 2     1 138.6246       0
+```
+Yes, the LRT did better. This result is consistent with the Mann-Whitney (-Wilcoxon test).
+
+Now let's again increase the mean in one group by 0.01. Not only the model convrges properly, but also the Wald's and LRT are in a good agreement!
 ``` r
 > set.seed(1000)
 > stack(
@@ -216,8 +260,32 @@ indarm2 9.179891   1.735655 5.289008
 # p-value
 > 2*pnorm(q=5.289008, lower.tail=FALSE)
 [1] 1.229815e-07
+
+# Let's confirm with the previous method rms::orm()
+# -------------------------------------------------
+>  set.seed(1000)
+>  stack(
++   data.frame(arm1 = rnorm(50, mean=0.01),
++              arm2 = rnorm(50, mean=5))) %>% 
++   mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++   rms::orm(values ~ ind, data=.)
+Logistic (Proportional Odds) Ordinal Regression Model
+ 
+ rms::orm(formula = values ~ ind, data = .)
+ 
+                           Model Likelihood               Discrimination    Rank Discrim.    
+                                 Ratio Test                      Indexes          Indexes    
+ Obs              100    LR chi2     133.10    R2                  0.736    rho     0.865    
+ Distinct Y       100    d.f.             1    R2(1,100)           0.733                     
+ Median Y    2.677509    Pr(> chi2) <0.0001    R2(1,100)           0.733                     
+ max |deriv|   0.0009    Score chi2   99.69    |Pr(Y>=median)-0.5| 0.487                     
+                         Pr(> chi2) <0.0001                                                  
+ 
+          Coef   S.E.   Wald Z Pr(>|Z|)
+ ind=arm2 9.1781 1.7356 5.29   <0.0001 
 ```
-And now that's fine.
+**And now that's fine.**
+
 So, as I said - even if a model *actually converges*, the estimate may be unreliable. Always remember to check your outcomes.
 
 **Take-home messages #2:** 
@@ -225,26 +293,6 @@ So, as I said - even if a model *actually converges*, the estimate may be unreli
 3. Having multiple options, always choose the method that alerts you that something went wrong rather than method that silently pretends nothing wrong happened and happily continues. **It's always better to have NO result rather than having WRONG result.**
 
 You. Have. Been. Warned.
-
-PS: **Wait!** You tested totally different hypotheses with these methods, so maybe that's the issue?
-**NO.** The ordinal logistic regression with just 2-level categorical predictor and no covariates is equivalent to Mann-Whitney (-Wilcoxon), which tests for stochastic dominance (_NO, it's NOT about medians_). Under IID it reduces to pseudo-median difference. Under symmetry of the distributions of [Walsh averages](https://stats.stackexchange.com/questions/215889/prove-the-relationship-between-walsh-averages-and-wilcoxon-signed-rank-test) it gives median difference.
-And, under normality of both distributions, the median difference = mean difference. Which is equal to difference in means (in the normal distribution mean=median)
-Following me?
-
-``` r
-> set.seed(1000); x1 <- rnorm(1000000); x2 <- rnorm(1000000, mean=10)
-> sprintf("mean(diff)=%f, diff(means)=%f, median(diff)=%f, diff(medians)=%f, ps-median(diff)=%f",
-+ mean(x1 - x2), mean(x1) - mean(x2), median(x1 - x2), median(x1) - median(x2), wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)$estimate)
-[1] "mean(diff)=-9.999591, diff(means)=-9.999591, median(diff)=-10.000615, diff(medians)=-9.998330, ps-median(diff)=-9.999202"
-```
-
-Now let's look from another perspective. The ordinal logistic regression naturally fits the Mann-Whitney (-Wilcoxon) null hypothesis. Citing the `rms` package from Prof. Harrell: "_[orm] fits ordinal cumulative probability models for continuous or ordinal response variables [...]. The ordinal cumulative probability models are stated in terms of exceedance probabilities (P rob[Y ≥ y|X]) so that as with OLS larger predicted values are associated with larger Y._"
-
-Check this link (may change in future, when I reorganize things) for an example of their close agreement not only in terms o p-values, but also the measure of concordance:
-[Mann-Whitney (-Wilcoxon) test of stochastic equivalence (vs. stochastic superiority / dominance)](https://github.com/adrianolszewski/Logistic-regression-is-regression/blob/main/Testing%20hypotheses%20about%20proportions%20using%20logistic%20regression.md#mann-whitney--wilcoxon-test-of-stochastic-equivalence-vs-stochastic-superiority--dominance)
-
-So actually - with just different methods - I tested the same hypotheses. Just indirectly.
-
 ----
 ## Interpretation
 For some models the equivalence is strict, I mean - it could be shown by formulas (I was shown it in the past yet  I don't take the challenge to replicate :-) ).
@@ -290,5 +338,5 @@ Ideally add "SAS" to your queries, as commercial packages (SAS, Stata, SPSS, NCS
 ## Conclusions
 So you can see with your own eyes, that model-based testing has LOTS of advantages. But sometimes you will need just a simple, classic test that runs FAST. Especially, if you have lots of tests to do under multiple imputation conditions, with lengthy data, and you are approaching a deadline :-)
 
-So the choice depends really on your needs.  I only want to show you that this is doable and how well.
-
+**So the choice depends really on your needs.  I only want to show you that this is doable and how well it performs.
+**
