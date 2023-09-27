@@ -465,7 +465,7 @@ simulate_wilcox_olr_distr(samples = 100, n_group = 50,
 
 Perfect agreement.
 
-So now let's scale both distributions to a unit-variance:
+So now let's scale both distributions down:
 ```r
 simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
                           arm_1_distr = "scale(rgamma(n_group, 2, .4), center=FALSE)",
@@ -476,7 +476,7 @@ simulate_wilcox_olr_distr(samples = 100, n_group = 50,
 ```
 ... no errors and perfect agreement. Now because we made the distributions too similar to each other (similar mean, variance, only shapes differ).
 
-Let's return to the example with beta distribution, now with both distributions scaled to a unit variance:
+Let's return to the example with beta distribution, now with both distributions scaled down:
 ```r
 simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
                           arm_1_distr = "scale(rbeta(n_group, 10, 1), center=FALSE)",
@@ -489,26 +489,23 @@ simulate_wilcox_olr_distr(samples = 100, n_group = 50,
 
 Now it works! OK, there's some bias, but, typically - at the very low p-values.
 
-OK, but what about the normal distribution? When I asked the program to compare two distributions with SAME unit-variance, only differing by location, it failed permanently.
-Don't tell me it will work, when I scale it down (to a unit variance again)?
+---- TODO: replace Wald's testing with LRT in the testing proceudure and add additional graphs. Will be a good study case for comparing the two.
+Also introduce the OLS (lm()) with ranked response = also almost equiv. to Mann-Whitney. And almost never fails.
 
-```r
-simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
-                          arm_1_distr = "scale(rnorm(n_group, 0, 1), center=FALSE)",
-                          arm_2_distr = "scale(rnorm(n_group, 5, 1), center=FALSE)",
-                          title = "sc(N(0,1)) vs sc(N(5,1))") %>% 
-  filter(complete.cases(.)) %>% 
-  plot_differences_between_methods(log_axes = TRUE)
+INVESTIGATE the problem.
+
+1) edge cases, like this one:
+``` r
+set.seed(1000)
+x1 <- sample(x = 1:3, size=10, replace = TRUE, prob = c(5,1,0) )
+x2 <- sample(x = 1:3, size=10, replace = TRUE, prob = c(5,2,0) )
+all(with(expand.grid(x1, x2), Var1 > Var2))
+
+stack(data.frame(x1, x2)) %>% rms::orm(values ~ ind, data=.)
+joint_tests(stack(data.frame(x1, x2)) %>% MASS::polr(factor(rank(values)) ~ ind, data=., Hess = T))
+stack(data.frame(x1, x2)) %>% lm(rank(values)~ind, data=.) %>% summary()
+wilcox.test(x1, x2, correct=FALSE, exact=FALSE)
 ```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/dbd2db2b-c0a7-476a-a6ad-bf9fcbea9926)
 
-You don't say! So we made a cirle and returned to the case that failed, with similar setting, but now it doesn't fail?
-
-Well, yes I have to investigate it more.
-
-The general conclusion is that:
-1. Mann-Whitney (-Wilcoxon) and the proportional-odds model (ordinal logistic regression) perfectly agree for naturally ordinal data, like Likert items and you can use either, depending on purpose. If you are interested in a more complex comparison of several contrasts, adjusting for covariates - then you have the tool for it.
-2. For numerical data - well, it really depends on various circumstances and it's difficult to say how your model will behave. In general - if it converges, then it's rather in agreement with Mann-Whitney (-Wilcoxon). If it fails to converge, you have bad luck and that's all. Either you will switch to simple Wilcoxon (and resign from covariate adjustments, comparisons, etc.) or admit it failed, or try another method, maybe quantile regression (with different objective and interpretation!).
-
-
+Failed Wald, while LRT works OK. That may be the way to go...
    
