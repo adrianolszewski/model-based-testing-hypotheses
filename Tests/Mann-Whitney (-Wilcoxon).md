@@ -264,7 +264,11 @@ The agreement was very close, so the selection depended exclusively on the concr
 The situation complicates when we want to extend comparisons to numeric continuous data.
 The ordinal logistic regression can easily handle numerical data, treating them like classes, and esitmating as many intercepts as many unique values exist.
 
-But it won't go so smoothly. For some distributions, like the standard normal one, the procedure may fail to converge, regardless of the implementation, under the alternative hypothesis. Adding just a little value to certain parameters (e.g. 0.01 to the mean parameter) may solve the problem.
+But it won't go so smoothly. For some distributions the procedure may fail to converge, regardless of the implementation, under the alternative hypothesis. Adding just a little value to certain parameters (e.g. 0.01 to the mean parameter) may solve the problem.
+
+Why is that we explained in file "readme.md". Briefly: the proportional-odds model assesses so-called stochastic superiority, which is probability that for a random pair of observations sampled from 2 groups {a1 ∈ A1, a2 ∈ A2}, a1 > a2. Now, if you have two numeric variables with non-overlapping empirical distributions, this will always hold, so the model won't be able to converge.
+
+Notice, this will almost never happen with Likert items - both variables share same set of values (e.g. 0..5), so they will overlap anyway, except just a few marginal cases, where all observations in one group are lower than in t he other group, e.g. A = {0,0,0,1,1,1,2,2}, B = {3,3,3,4,4,4,5,5}
 
 **Warning: Better choose the implementation that raises errors rather than returns unreliable estimates(!)**
 
