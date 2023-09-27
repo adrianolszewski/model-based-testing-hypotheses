@@ -3,9 +3,11 @@ Testing hypotheses through statistical models opens a universe of new possibilit
 
 [In this document](https://github.com/adrianolszewski/Logistic-regression-is-regression/blob/main/Testing%20hypotheses%20about%20proportions%20using%20logistic%20regression.md) I showed how the model-based approach, namely
 the logistic regression (with extensions) can replicate numerous classic tests of proportions: 
-Wald's and Rao z test for 2+ proportions (+ ANOVA-like), Cochran-Mantel-Haenszel (CMH), Breslow-Day, Cochran-Armitage, McNemar, Cochran Q, Friedman, Mann-Whitney (-Wilcoxon), Kruskal-Wallis
+Wald's and Rao z test for 2+ proportions (+ ANOVA-like), Cochran-Mantel-Haenszel (CMH), Breslow-Day, Cochran-Armitage, McNemar, Cochran Q, Friedman, Mann-Whitney (-Wilcoxon), Kruskal-Wallis.
 
-## What for?
+But this extends much more! General and Generalized Linear Models fit via Generalized Least Square, Generalized Estimating Equations and through Generalized Linear Mixed Models, (Mixed-effect) Quantile regression, Cox proportional-hazard regression, Accelerated Failure Time, Tobit regression, Simplex regression and dozens of others models will be at your disposal to test hypotheses in a way you probably were never told.
+
+## Just one question: WHY?
 Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
 A more advanced inferential analysis often goes FAR beyond that these tests can do.
 
@@ -14,13 +16,14 @@ For our considerations it's important to say, that **by applying Likelihood Rati
 / PS: Oh my, so many related topics!
 I'm not going to write a textbook of statistical methods, so if you're curious about the Wilk's Likelihood Ratio (LR), Wald's and Rao testing, google these terms.
 You can start from:
+- [Likelihood-ratio test or z-test?](https://stats.stackexchange.com/questions/48206/likelihood-ratio-test-or-z-test)
 - [Mathematical Statistics — Rigorous Derivations and Analysis of the Wald Test, Score Test, and Likelihood Ratio Test. Derivations of the Classic Trinity of Inferential Tests with Full Computational Simulation](https://towardsdatascience.com/mathematical-statistics-a-rigorous-derivation-and-analysis-of-the-wald-test-score-test-and-6262bed53c55)
 - [FAQ: How are the likelihood ratio, Wald, and Lagrange multiplier (score) tests different and/or similar?](https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-are-the-likelihood-ratio-wald-and-lagrange-multiplier-score-tests-different-andor-similar/)
-- [Handouts for Lecture Stat 461-561 Wald, Rao and Likelihood Ratio Tests](https://www.cs.ubc.ca/~arnaud/stat461/lecture_stat461_WaldRaoLRtests_handouts_2008.pdf)
-- [STAT 713 MATHEMATICAL STATISTICS II - Lecture Notes](https://people.stat.sc.edu/Tebbs/stat713/s18notes.pdf)
+- (warning, math!) [Handouts for Lecture Stat 461-561 Wald, Rao and Likelihood Ratio Tests](https://www.cs.ubc.ca/~arnaud/stat461/lecture_stat461_WaldRaoLRtests_handouts_2008.pdf)
+- (warning, math!) [STAT 713 MATHEMATICAL STATISTICS II - Lecture Notes](https://people.stat.sc.edu/Tebbs/stat713/s18notes.pdf)
 
-Take home messages:the 
-1. In our considerations we'll primarily employ two statistical methods: Wald's test and Likelihood Ratio Test (LRT). We'll closely examine how these methods behave in various scenarios.
+**Take home messages:**
+1. In our considerations we'll primarily employ two statistical methods: Wald's test and Wilk's Likelihood Ratio Test (LRT). We'll closely examine how these methods behave in various scenarios.
 
 2. For you now it's important to know, that asymptotically these methods yield equivalent results. Asymptotically means "at infinite sample size". In real-world scenarios they will always differ, but unless you hit the "edge case", they will be rather consistent.
   
