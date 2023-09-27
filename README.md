@@ -246,7 +246,7 @@ Response: values_ord
 ```
 Yes, the LRT did better. This result is consistent with the Mann-Whitney (-Wilcoxon test).
 
-Now let's again increase the mean in one group by 0.01. Not only the model convrges properly, but also the Wald's and LRT are in a good agreement!
+Now let's again increase the mean in one group by 0.01. Not only the model converges properly, but also the Wald's and LRT are in a good agreement!
 ``` r
 > set.seed(1000)
 > stack(
