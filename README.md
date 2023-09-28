@@ -90,6 +90,8 @@ Fair enough?
 ## But the model-based testing is SLOW!
 Let's be honest - model-based testing can be (and IS) **SLOWER** than running a plain good-old test, especially if you perform then under multiple imputation approach to missing data (where you repeat the same analysis on each of dozens of imputed datasets and then pool the results.), especially if you also employ the Likelihood Ratio testing (LRT).
 
+But if you have just a few ten-to-hundred of observations, then I wouldn't be much concerned.
+
 **But - well - did you expect a free lunch?
 As I said in the beginning - simple tests do simple jobs and cannot do anything more. If you want more, you have to pay for it. That's as simple.**
 
@@ -187,11 +189,40 @@ Logistic (Proportional Odds) Ordinal Regression Model
 ```
 ----
 
-## Even worse, you just said that different method of testing can yield OPPOSITE results!
+## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
+Yes. But the differences will be mostly mostly mostly under the ALTERNATIVE hypothesis and mostly at lower p-values.
 
-Yes. Not only Wald's calculation may fail entirely, while LRT will be still available, but also Wald's and LRT may yield opposite results, e.g. Wald's p-value = 0.8 vs. LRT p-value < 0.001.
+This is my observation for numerous examples. I guess that's because (if you imagine the concave (ideally quadratic) curve of log-likelihood for the model parameter representing the group indicator)
+under the null hypothesis:
+- **Wald's:** the difference on the horizontal axis (parameter space) = the difference between compared means (for example) -> 0
+- **Wilk's LRT** the difference on the vertical axis (log-likelihoods) between both models -> 0. So the likelihood ratio -> 1.
+- **Rao's score** the slope of the tangential line approaches zero (Rao' score). And this reflects the fact that under H0 the derivative (score) of the log-likelihood function with respect to the parameter should be close to zero.
 
-But that doesn't happen very often, rather in "edge cases". That's why doing statistical analysis is not just a brainless "click-and-go" task!
+While, at the alternative hypothesis, they will diverge from each other as the likelihood curve deviates from the quadratic curve.
+See? It all makes sense!
+
+The good news is that typically the differences will "manifestte" itself below most common significance levels (<0.001)
+
+For instance, for 0-5 Likert items sampled with some predefined probability:
+```r
+# Under H0
+# simulate_wilcox_olr_LR(samples = 100, n_group = 50, set = 0:5, 
+#                        arm_1_prob =  c(20, 10, 5, 2, 2, 2),
+#                        arm_2_prob =  c(20, 10, 5, 2, 2, 2),
+#                        which_p = "Wald") #... and Rao, LRT 
+# Under H1
+# simulate_wilcox_olr_LR(samples = 100, n_group = 50, set = 0:5, 
+#                        arm_1_prob =  rev(c(20, 10, 5, 2, 2, 2)),
+#                        arm_2_prob =  c(20, 10, 5, 2, 2, 2),
+#                        which_p = "Wald") #... and Rao, LRT
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/c6b14283-caa3-4855-9024-cfcdfbebe705)
+
+## Even worse! You just said that different method of testing can yield OPPOSITE results!
+
+Yes, Wald's and LRT may yield opposite results, e.g. Wald's p-value = 0.8 vs. LRT p-value < 0.001.
+
+But that doesn't happen very often, in "**edge cases**". That's why doing statistical analysis is not just a brainless "click-and-go" task!
 
 This is summarized in the article I already cited ([Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)): "Further, a situation in which the Wald approach completely fails while the likelihood ratio approach is still (often) reasonable is when testing whether a parameter lies on the boundary of its parameter space." 
 
@@ -205,6 +236,7 @@ If, for instance, you run the ordinal logistic regression over Likert data and o
 1. A model can fail to converge if the data are "not nice" :-)
 2. Wald's approach may fail, while the LRT will do well.
 3. A test may still work in this case (like the LRT).
+4. Wald's may differ from LRT under the alternative hypothesis
 
 By the way! You may ask: _but cannot we just use a better implementations able to complete the estimation?_
 
