@@ -327,7 +327,8 @@ So, as I said - even if a model *actually converges*, the estimate may be unreli
 
 3. Having multiple options, always choose the method that alerts you that something went wrong rather than method that silently pretends nothing wrong happened and happily continues. **It's always better to have NO result rather than having WRONG result.**
 
-You. Have. Been. Warned.
+**You. Have. Been. Warned.**
+
 ----
 ## Interpretation
 For some models the equivalence is strict, I mean - it could be shown by formulas (I was shown it in the past yet  I don't take the challenge to replicate :-) ).
@@ -373,5 +374,5 @@ Ideally add "SAS" to your queries, as commercial packages (SAS, Stata, SPSS, NCS
 ## Conclusions
 So you can see with your own eyes, that model-based testing has LOTS of advantages. But sometimes you will need just a simple, classic test that runs FAST. Especially, if you have lots of tests to do under multiple imputation conditions, with lengthy data, and you are approaching a deadline :-)
 
-**So the choice depends really on your needs.  I only want to show you that this is doable and how well it performs.
-**
+**So the choice depends really on your needs.  I only want to show you that this is doable and how well it performs.**
+
