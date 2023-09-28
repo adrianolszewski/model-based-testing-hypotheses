@@ -411,3 +411,60 @@ Warning: did not converge as iteration limit reached
 ```
 
 It will just not work for this data, sorry.
+
+I investigated this issue a lot and it seems it's a matter of overlap in data. In other words - as long, as the empirical distributions overlap, it will work. Otherwise it fails.
+
+Let me show you:
+* N(50, 20) vs. N(35, 20); n_group = 100
+
+For such data we get a big overlap of distributions, even if their means differ statistically significantly.
+Let's examine one of the _Common Language Effect Size_ measures, namely the **% of overlap** ([Interpreting Cohen's d Effect Size](https://rpsychologist.com/cohend/))
+```r
+set.seed(1000)
+x1 <- rnorm(100, 50, 20)
+x2 <- rnorm(100, 35, 20)
+effectsize::p_overlap(x1, x2)
+Overlap |       95% CI
+----------------------
+0.73    | [0.62, 0.84]
+```
+Let's run the tests:
+``` r
+simulate_wilcox_olr_distr(samples = 100, n_group = 100, 
+                          arm_1_distr = "rnorm(n_group, 50, 20)",
+                          arm_2_distr = "rnorm(n_group, 35, 20)", 
+                          title = "N(50,20) vs N(35,20)",
+                          which_p = "Wald") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/62ef5e23-b928-4b6d-aee2-24c9b65ddf1b)
+
+Perfect agreement even under alternative hypothesis (for the normal distribution we get perfect parabolic log-likelihood curve).
+Now let's decrease variance - separate the distributions (less overlap).
+
+* N(50, 10) vs. N(35, 10); n_group = 100
+Now the overlap decreases:
+```r
+set.seed(1000)
+x1 <- rnorm(100, 50, 10)
+x2 <- rnorm(100, 35, 10)
+effectsize::p_overlap(x1, x2)
+Overlap |       95% CI
+----------------------
+0.46    | [0.37, 0.56]
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4036752c-ae81-4a58-bd13-aef78d5f6794)
+
+OK, something beggins to happen! We notice some deviation from the line appearing at the smallest p-values.
+
+* N(50, 5) vs. N(30, 5); n_group = 100 
+```r
+set.seed(1000)
+x1 <- rnorm(100, 50, 5)
+x2 <- rnorm(100, 35, 5)
+effectsize::p_overlap(x1, x2)
+Overlap |       95% CI
+----------------------
+0.13    | [0.08, 0.19]
+```
