@@ -66,7 +66,7 @@ I repeated the simulations sample sizes:
 - n_group = 20 - typical small data size; smaller samples don't make much sense in a reliable research,
 - n_group = 30 - the "magical number" so many statisticians find "magical". Of course it's not, but this constitutes a reasonable "lower limit of data"
 - n_group = 50 - still small data but in a safer area
-- n_group = 100 - safe area
+- n_group = 100 - safe area (optionally)
 
 Actually, the type-1 error and power is totally off topic in this simulation, we only check how well the methods follow each other, but having the opportunity - we will look at it too. We only have to remember that this is a long-run property and at 100 replications it will be "just close" rather than "nominal", especiallly at smaller samples. It's normal to have, say 7/100 (=0.07), 12/200 (=0.06) to finally reach 15/300 (=0.05).
 
@@ -258,6 +258,15 @@ differences between the 3 methods and the test (kind of Rao test) become milder.
 As the sample size increases, the pattern remains - the discrepancy occurs, but - naturally - at smaller and smaller p-values, where it's completely not harmful. So let's skip checking at bigger samples to save time.
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/20ce5c77-6b4a-463f-b3d0-e3025207ecc8)
 
+##### Under H0 vs H1 - comparison of three estimation methods
+Again, let's make some feeling on how the 3 methods behave. As the differences are less extreme, we expect the methods to give a bit closer results.
+But don't expect a spectacular improvement.
+###### 20 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/cae95c76-ec7d-4dea-9935-bb21410e376f)
+
+###### 30 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4e9481e0-dfcd-4076-b0a6-6060d8ae2441)
+
 ----
 
 #### Comparing numerical data
@@ -267,7 +276,7 @@ The agreement was very close, so the selection depended exclusively on the concr
 The situation complicates when we want to extend comparisons to numeric continuous data.
 The ordinal logistic regression can easily handle numerical data, treating them like classes, and esitmating as many intercepts as many unique values exist.
 
-But it won't go so smoothly. For some distributions the procedure may fail to converge, regardless of the implementation, under the alternative hypothesis. Adding just a little value to certain parameters (e.g. 0.01 to the mean parameter) may solve the problem.
+But it won't go so smoothly. For some distributions the procedure may fail to converge, regardless of the implementation, under the alternative hypothesis. Shifting mean in one gruop just by a little (e.g. 0.01) may solve the problem while not affecting the interpretation of the test.
 
 Why is that we explained in file "readme.md". Briefly: the proportional-odds model assesses so-called stochastic superiority, which is probability that for a random pair of observations sampled from 2 groups {a1 ∈ A1, a2 ∈ A2}, a1 > a2. Now, if you have two numeric variables with non-overlapping empirical distributions, this will always hold, so the model won't be able to converge.
 
