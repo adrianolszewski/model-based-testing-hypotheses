@@ -1,4 +1,4 @@
-# Mann-Whitney (-Wilcoxon)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/eca853f5-0a6c-4ae3-b446-039958754a3f)# Mann-Whitney (-Wilcoxon)
 
 ## Table of contents
 1. Description of the test
@@ -173,10 +173,11 @@ simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob, w
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  c(20, 10, 5, 2, 2, 2),
-                    arm_2_prob =  c(20, 10, 5, 2, 2, 2), which_p = "Wald") %>%  
+                    arm_2_prob =  c(20, 10, 5, 2, 2, 2),
+                    which_p = "Wald") %>%  
   plot_differences_between_methods()
 ```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/0f9ea4c4-a7a9-4a6d-a559-bcf9df65bf4f)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/e072f1a3-e3d3-48bb-b1ce-b754ab48a77c)
 
 OK, let's make some notes:
 1. look at the most left plot. The p-values from both methods are well aligned to the line of slope = 1, though some bias is visible towards Test p-values.
@@ -188,93 +189,74 @@ OK, let's make some notes:
 With increased group size the situation will get only better. The type-1 error is well maintained in all cases (remembering what I said about sm
 
 ###### 30 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/a3cc3773-b84f-4d34-80d2-2e9b2ab0580a)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/0643dff4-a2f8-4ac0-9988-809f25b698e0)
 
 ###### 50 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/6805b795-c56b-40ca-99bb-2f7d9c5b1cab)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/dd8f83d8-f804-4b8f-89a8-33260ad20c1d)
 
 ##### 100 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/95c92419-3c47-4379-af16-f0a079ddf41b)
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/d7ffea1b-b7d2-4c87-b0b2-66da1d40fcba)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4514867b-627c-43bf-865b-3cbf3d6fe34a)
 
 ##### Under H1 - in one group the probabilities of obtating each score are reversed (as in the figure explaining the data above)
 ###### 20 observations per group
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  rev(c(20, 10, 5, 2, 2, 2)),
-                    arm_2_prob =  c(20, 10, 5, 2, 2, 2), ...) %>%  
-plot_differences_between_methods()
+                    arm_2_prob =  c(20, 10, 5, 2, 2, 2),
+                    which_p = "Wald") %>%  
+  plot_differences_between_methods(log_axes = TRUE)
 ```
-While Wald's method failer at this data size,
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/df1b14e5-27f5-44c7-b626-ef7d39cd027d)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/b8664220-96d1-4348-a73d-c4172f75a29c)
 
-The LRT managed better!
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/fbe752a2-b2d9-416e-9b91-8881550cba35)
+For Wald's we can notice the already described issue, where some noticeable discrepancies occur. This happens at this sample size, nothing unusual.
+In general - at this data size - it's not that bad!
 
-And Rao's score did even better than LRT, resulting in smaller differences (and ratios)
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/c9da818f-08b7-41a8-aeca-3c5a98d1cf3d)
+But can read in many textbooks, that at lower sample size Wald's may be unreliable (it does), so the LRT or Rao score is preferred.
+Well, sometimes you just NEED Wald's, but if you can ask for the LRT or Rao, do it. Let's have a look:
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/e6b4e3e2-d4f8-4dc9-b0ca-99c941b1a824)
+Indeed, it did bettter! Now it deviates the other way, but definitely in the safe direction - towards lower p-values, farther from the common significant levels.
 
-Well! Let's make some notes:
-1. Now we went to small and very small p-values, so I log-transformed both axes.
-2. There was a relationship between the methods, but the agreement was not perfect, showing a noticeable bias.
+And Rao's score did even better than LRT, resulting in smaller differences (and ratios):
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/cbac1d16-54dc-4cb7-8a8f-ee60769fbac1)
 
 ###### 30 observations per group
 Just 10 more observations makes a big difference and this time Wald's does the job!
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/1981a4a4-514b-473a-b8fb-f65c1e2543e6)
-
-LRT didn't improve much...
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/3fbdf89a-ddab-4e84-be44-9b8e3d0be83c)
-
-Rao was similar to Wald's.
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/ec2b0b93-e090-4f55-a3aa-f05fd458cff2)
+I'll skip the other approaches sa they give result consistent with the above. We will compare them later.
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/bcca869a-330a-4cea-8632-1210575524a4)
 
 ###### 50 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/acf2fbcb-e33c-4835-ac24-540d5bf5516d)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/564d2d47-98bf-4b3b-a969-050b710bb526)
 
-1. The divergence pattern is kept and big (2 order of magnitude). Again, it happens at extremely small p-values, where it is completely negligible.
+##### Under H0 vs H1 - comparison of three estimation methods
+Let's make some feeling on how the 3 methods behave.
+###### 20 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/c4a96f36-2b38-4cc0-bc03-2fc9ef1e4da0)
 
-##### Again under H1 - another (less extreme) setting
+###### 30 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/98ed9c48-dca4-40c6-b10a-b49fc4fca5d2)
+
+###### 50 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/a1de3100-d82c-44d4-8f85-75e909c2b42d)
+
+###### 100 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/aac5871e-f7b2-460e-82fa-96a941a4e4b1)
+
+##### Again under H1 - another, less extreme setting
 ###### 20 observations per group
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  rev(c(20, 10, 20, 5, 5, 5)),
-                    arm_2_prob =  c(20, 10, 20, 5, 5, 5)) %>%  
-  plot_differences_between_methods(log_axes = TRUE)
+                    arm_2_prob =  c(20, 10, 20, 5, 5, 5),
+                    which_p = "Wald") %>%  
+plot_differences_between_methods(log_axes = TRUE)
 ```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/538fb810-d1fb-4bf8-9981-2535b5c284f7)
-
-1. The consistency is MUCH better.
-2. Below 0.0001 it brokes again, but of much smaller magnitude (<1 order of)
-3. The closer to H0, the more "peacefully" both methods behave.
+If the differences between compared groups are not that extreme, the log-likelihood curve becomes not only concave but approaches quadratic shape, so the
+differences between the 3 methods and the test (kind of Rao test) become milder.
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/690fd701-c717-4e97-a062-8f51c356b9dc)
 
 ###### 30 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/16ef31ac-e370-450e-8065-371e64ea1a11)
-
-The consistency is noticeably better compared to the 20-sample case.
-
-###### 50 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/dcfb1373-3264-484a-9b7a-600d453d5616)
-
-##### Under mixed conditions
-###### 20 observations per group
-The probabilties for the scores were sampled with varying probabilities
-``` r
-simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
-                    arm_1_prob =  NULL,
-                    arm_2_prob =  NULL) %>% 
-  plot_differences_between_methods(log_axes = TRUE)
-```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/faa99b07-c5b4-4161-b0c3-ca887876dec1)
-
-1. Very good consistency of results!
-2. In all cases model was more sensitive than test
-3. There were 3 discrepancies but they were caused by minimal differences, so the situation is very good.
-
-###### 30 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/127c5b2c-5d75-451c-bae3-2d79f6ad12f4)
-
-###### 50 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/b708dcff-6535-4a32-948f-06a9ce0f290d)
+As the sample size increases, the pattern remains - the discrepancy occurs, but - naturally - at smaller and smaller p-values, where it's completely not harmful. So let's skip checking at bigger samples to save time.
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/20ce5c77-6b4a-463f-b3d0-e3025207ecc8)
 
 ----
 
