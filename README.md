@@ -187,6 +187,10 @@ Logistic (Proportional Odds) Ordinal Regression Model
           Coef   S.E.   Wald Z Pr(>|Z|)
  ind=arm2 9.1781 1.7356 5.29   <0.0001 
 ```
+
+And sometimes it does not work at all and then you cannot proceed with this model. Try OLS with ranked response `lm(rank(y) ~ predictor)` instead.
+Should work and be consistent with Mann-Whitney (-Wilcoxon).
+
 ----
 
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
