@@ -344,37 +344,73 @@ simulate_wilcox_olr_distr <- function(samples, n_group, arm_1_distr, arm_2_distr
 2. We can observe, that bias -test giving a little bigger p-values- is common to all cases, but it does not harm at this magnitude. It's just observable.
 
 ##### Under H1 (various cases)
-###### Standard normal distribution. N(5, 1) vs. N(0, 1); n_group = 50 
+###### Standard normal distribution. N(5, 1) vs. N(0, 1); n_group = 20 
 ```r
-simulate_wilcox_olr_distr(samples = 100, n_group = 50, 
+simulate_wilcox_olr_distr(samples = 100, n_group = 20, 
                           arm_1_distr = "rnorm(n_group, 5, 1)",
-                          arm_2_distr = "rnorm(n_group, 0, 1)",
-                          title = "N(5,1) vs N(0,1)") %>% 
+                          arm_2_distr = "rnorm(n_group, 0, 1)", 
+                          title = "N(5,1) vs N(0,1)",
+                          which_p = "Wald") %>% 
   filter(complete.cases(.)) %>% 
-  plot_differences_between_methods(log_axes = FALSE)
+  plot_differences_between_methods(log_axes = TRUE)
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/d8a15792-3e38-4317-812e-2712750fe5c2)
 
+Well, a disaster! It converged(?) for just a few cases and resulted in weird p-values. All the same p-values!
+
+OK, what about Rao?
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/0eba5c40-246d-4da7-94c6-e006f67fed79)
+
+Well, let's try bigger sample. But I suspect it will just throw an error...
+
+###### Standard normal distribution. N(5, 1) vs. N(0, 1); n_group = 100 
+```r
+> simulate_wilcox_olr_distr(samples = 100, n_group = 100, 
++                           arm_1_distr = "rnorm(n_group, 5, 1)",
++                           arm_2_distr = "rnorm(n_group, 0, 1)", 
++                           title = "N(5,1) vs N(0,1)",
++                           which_p = "Wald") %>% 
++   filter(complete.cases(.)) %>% 
++   plot_differences_between_methods(log_axes = TRUE)
 [1] 1
 Did not converge in 12 iterations
 Unable to fit model using  “orm.fit” 
-✖ Failed to converge; skip
 [1] 2
 Did not converge in 12 iterations
 Unable to fit model using  “orm.fit” 
-✖ Failed to converge; skip
 [1] 3
 Did not converge in 12 iterations
 Unable to fit model using  “orm.fit” 
-✖ Failed to converge; skip
+```
+As I expected. The model failed itself.
+
+There may be other implementation that are "silent", but won't make a miracle too:
+
+```r
+> set.seed(1000)
+> 
+> stack(data.frame(arm1 = rnorm(n = 20, mean=5, sd = 1),
++                  arm2 = rnorm(n = 20, mean=0, sd = 1))) %>% 
++           mutate(values_ord = ordered(values), ind = factor(ind)) %>% 
++     MASS::polr(values_ord ~ ind , data = ., Hess = TRUE)
+Call:
+MASS::polr(formula = values_ord ~ ind, data = ., Hess = TRUE)
+
+Coefficients:
+  indarm2 
+-19.78993 
+
+Intercepts:
+    -1.78384413571217|-1.766198610056     -1.766198610056|-1.34835905258526   -1.34835905258526|-1.22701600631211 
+                        -22.732515115                         -21.986947341                         -21.524205629 
+[... CUT ...]
+
+Residual Deviance: 239.6635 
+AIC: 319.6635 
+Warning: did not converge as iteration limit reached
 ```
 
-Wow! A disaster! It converged for just a few cases and resulted in weird p-values.
-BTW: the MASS::polr() function won't report any issue, but the p-values will be totally wrong.
-So, again, it's better to see the problem.
-
-Look below, if you are not convinced (I temporarily replaced rms::orm() with MASS::polr())
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/c6df164c-23c7-4dbb-9dac-372ed1ac89f0)
-
-Convinced now? OK, let's try another families.
+It will just not work for this data, sorry.
 
 ###### Beta right-skewed β(1, 10) vs. β(10, 1); n_group = 50  (for simplicity; It's gives oppositely skewed distributions, like in the example with Likert items)
 ``` r
