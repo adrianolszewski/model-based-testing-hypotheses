@@ -20,6 +20,18 @@ WHAT!? _Pseudo-median difference_? Not "difference in medians"?
 
 No. But **if the distribution of differences betwene the groups is symmetric, then it reduces to median difference.**
 
+Quick and dirty check (you can use bigger numbers for better agreement, but it may take whole lot of time!)
+```r
+# set.seed(1000); 
+# x1 <- rnorm(1000000); 
+# x2 <- rnorm(1000000, mean=10)
+# sprintf("mean(diff)=%f, diff(means)=%f, median(diff)=%f, diff(medians)=%f, ps-median(diff)=%f",
+# mean(x1 - x2), mean(x1) - mean(x2), median(x1 - x2), median(x1) - median(x2), 
+ wilcox.test(x1, x2, conf.int = TRUE, exact = FALSE, adjust = FALSE)$estimate)
+
+[1] "mean(diff)=-9.999591, diff(means)=-9.999591, median(diff)=-10.000615, diff(medians)=-9.998330, ps-median(diff)=-9.999202"
+```
+
 2. **data in both compared samples are symmetric around their medians**. Only now it reduces to difference in medians.
 
 In my other respository [Mann-Whitney fails as a test of medians in general](https://github.com/adrianolszewski/Mann-Whitney-is-not-about-medians-in-general) you will find numerous resources (mostly free and some available via Google Books) to learn about this problem and simulations proving that treating this test as a test of medians can really be dangerous.
@@ -44,8 +56,7 @@ I set up a loop, in which data were sampled (according to some patterns) and the
 Then I display these p-values in a series of graphs:
 1. Test vs. Model to observe how well they follow each other and observe discrepancies
 2. Ratios of p-values - the closer to 1 the better (this works well regardless of the magnitude of p-values)
-3. Raw differences in p-values. These differences do depend on the magnitude of p-values, and that's exactly what I wanted to see. At very small p-values (p<0.001) I would not care
-about differences like p=0.00032 vs. p=0.00017 because both results are far from the typical signfiicance levels (0.1, 0.01, 0.05, 0.01 and also 0.001).
+3. Raw differences in p-values. These differences do depend on the magnitude of p-values, and that's exactly what I wanted to see. At very small p-values (p<0.001) I would not care about differences like p=0.00032 vs. p=0.00017 because both results are far from the typical signfiicance levels (0.1, 0.01, 0.05, 0.01 and also 0.001).
 For practical purposes I would care if they were discrepant near 0.05.
 4. Comparison of % of cases where Test > Model vs. Test < Model, with additional descriptie statistics of the p-values. Because raw differences depend on the magnitude, it's difficult to observe them on a common scale. Log transformation doesn't help there (0, negative values).
 So this approach gives me some feelings about the situation
@@ -58,6 +69,8 @@ I repeated the simulations sample sizes:
 - n_group = 100 - safe area
 
 Actually, the type-1 error and power is totally off topic in this simulation, we only check how well the methods follow each other, but having the opportunity - we will look at it too. We only have to remember that this is a long-run property and at 100 replications it will be "just close" rather than "nominal", especiallly at smaller samples. It's normal to have, say 7/100 (=0.07), 12/200 (=0.06) to finally reach 15/300 (=0.05).
+
+Whenever possible I will provide both Wald's and LRT results.
 
 ---
 ### Simulations!
@@ -73,7 +86,7 @@ set.seed(1000)
 lapply(1:100, function(i) {
   stack(
     data.frame(arm1 = sample(0:5, size=100, replace=TRUE, prob = c(20, 10, 5, 2, 2, 2)),
-               arm2 = sample(0:5, size=100, replace=TRUE, prob = c(2, 2, 2, 5, 10, 20)))) %>% 
+               arm2 = sample(0:5, size=100, replace=TRUE, prob = rev(c(20, 10, 5, 2, 2, 2))))) %>% 
     mutate(values_ord = ordered(values), ind = factor(ind))
 }) -> data
 ```
@@ -107,7 +120,7 @@ lapply(1:100, function(i) {
 
 #### The comparison engine
 ``` r
-simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
+simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob, which_p) {
   set.seed(1000)
   
   mixed_hyp <- is.null(arm_1_prob) | is.null(arm_2_prob)
@@ -128,10 +141,20 @@ simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
                      arm2 = sample(set, size=n_group, replace=TRUE, prob = arm_2_prob))) %>% 
           mutate(values_ord = ordered(values), ind = factor(ind)) -> data
         
+        #m <- joint_tests(MASS::polr(values_ord ~ ind , data = data, Hess=TRUE))$p.value)
+        m <- rms::orm(values_ord ~ ind , data = data)
+  
+        if(!m$fail)
+          case_when(which_p == "Wald" ~ as.numeric(2*pnorm(abs(m$coefficients["ind=arm2"] / sqrt(m$var["ind=arm2","ind=arm2"])), lower.tail = FALSE)),
+                    which_p == "LRT" ~ as.numeric(m$stats["P"]),
+                    which_p == "Rao" ~ as.numeric(m$stats["Score P"])) -> Model_p
+        else
+            Model_p <- NA
+        
         c(iter = i,
           n_group = n_group,
           Test  = tidy(wilcox.test(values~ind, data=data, exact = FALSE, adjust = FALSE))$p.value,
-          Model = joint_tests(MASS::polr(values_ord ~ ind , data = data, Hess=TRUE))$p.value)
+          Model = Model_p)
       }))) -> result
   
   attr(result, "properties") <- list(arm_1_prob = arm_1_prob, 
@@ -139,7 +162,8 @@ simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
                                      under_null = ifelse(mixed_hyp, NA, identical(arm_1_prob, arm_2_prob)),
                                      samples = samples,
                                      n_group = n_group,
-                                     title = "")
+                                     title = "",
+                                     method = which_p)
   return(result)
 }
 ```
@@ -149,63 +173,60 @@ simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob) {
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  c(20, 10, 5, 2, 2, 2),
-                    arm_2_prob =  c(20, 10, 5, 2, 2, 2)) %>%  
-plot_differences_between_methods()
+                    arm_2_prob =  c(20, 10, 5, 2, 2, 2), which_p = "Wald") %>%  
+  plot_differences_between_methods()
 ```
-![obraz](https://github.com/adrianolszewski/Logistic-regression-is-regression/assets/95669100/22ab75ac-11b4-40d2-ac82-18f440b52706)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/0f9ea4c4-a7a9-4a6d-a559-bcf9df65bf4f)
 
 OK, let's make some notes:
-1. look at the most right plot. The p-values from both methods are well aligned to the line of slope = 1, though some bias is visible towards Test p-values.
-2. It means, that test was more conservative than model.
+1. look at the most left plot. The p-values from both methods are well aligned to the line of slope = 1, though some bias is visible towards Test p-values.
+2. It means, that test was more conservative than model (higher p-values).
 3. The fact, that practically all p-values coming a test were larger from the p-values obtained from the model is confirmed also by the bar plot (central-bottom).
-4. When we look at the area below the 0.05 significance level, we notice 9 obervations. Remembering we "work under the null" it means, that both methods exceeded the 5% significance level, reaching 9% in this simulation. At this sample size it's fine for exploratory analyses.
-5. What's nice, the model and test did not contradict each other. 
+4. When we look at the area below the 0.05 significance level, we notice 5-6 observations. Remembering we "work under the null" it means, that both methods exceeded the 5% significance level, reaching 9% in this simulation. At this sample size it's fine for exploratory analyses.
+5. There was just single "contradiction" at very small difference of p-values 0.049 vs 0.051. 
+
+With increased group size the situation will get only better. The type-1 error is well maintained in all cases (remembering what I said about sm
 
 ###### 30 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4c1a0b6b-3217-42e8-904c-ee9a99d6c17c)
-
-1. The p-values from both methods are very well aligned. A small bias is visible towards test
-2. It means, that test was more conservative than model. But the discrepancies are small: between 0.005 and 0.01
-3. When we look at the area below the 0.05 significance level, we notice 7 false rejections for the model and 6 for test. Remembering we "work under the null" it means, that both methods exceeded the 5% significance level, but not that much. At this sample size it's a pretty good result.
-4. The test and model did not contradict each other except for 1 case, where the difference in p-values very small - 0.002. 
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/a3cc3773-b84f-4d34-80d2-2e9b2ab0580a)
 
 ###### 50 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/0816b225-26ab-42d2-872c-7f090fc874d9)
-
-1. Perfect alignment, yet a minimal bias towards test (more conservative) is visible and permanent (100%)
-2. From the other side, the differences between test and model are mostly <0.006 (under the null!) - about 2%, so this bias is completely off importance.
-3. Both classic and the model-based tests kept the nominal 5% type-1 error
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/6805b795-c56b-40ca-99bb-2f7d9c5b1cab)
 
 ##### 100 observations per group
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/95c92419-3c47-4379-af16-f0a079ddf41b)
-
-We can end here, as at this sample size no big improvement can be found.
-Yes, the bias exists and will continue to exist, but the differences between p-values from both methods mostly don't differ by more than 1% and we can totally ignore it.
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/d7ffea1b-b7d2-4c87-b0b2-66da1d40fcba)
 
 ##### Under H1 - in one group the probabilities of obtating each score are reversed (as in the figure explaining the data above)
 ###### 20 observations per group
 ``` r
 simulate_wilcox_olr(samples = 100, n_group = 20, set = 0:5, 
                     arm_1_prob =  rev(c(20, 10, 5, 2, 2, 2)),
-                    arm_2_prob =  c(20, 10, 5, 2, 2, 2)) %>%  
+                    arm_2_prob =  c(20, 10, 5, 2, 2, 2), ...) %>%  
 plot_differences_between_methods()
 ```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/031ff44c-288f-454c-8774-f5dab2062615)
+While Wald's method failer at this data size,
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/df1b14e5-27f5-44c7-b626-ef7d39cd027d)
+
+The LRT managed better!
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/fbe752a2-b2d9-416e-9b91-8881550cba35)
+
+And Rao's score did even better than LRT, resulting in smaller differences (and ratios)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/c9da818f-08b7-41a8-aeca-3c5a98d1cf3d)
 
 Well! Let's make some notes:
 1. Now we went to small and very small p-values, so I log-transformed both axes.
-1. There was a relationship between the methods, but the agreement was not perfect, showing a noticeable bias.
-2. This time the model was giving larger p-values, which was confirmed also by the bar plot (central-bottom).
-3. There were two cases where the discrepancy was **total**: the model gave p-values close to 1, while the test resulted in p-values much lower than 0.000001. Discrepancy of such a magnitude is rather unusual! Maybe the model failed to convetge reliably.
-4. Below 0.00-1 the consistency broke completely, discrepancy reached a 1-2 orders of magnitude
-5. **Luckily, for practicaly purposes such discrepancy (at this magnitude of p-values) is totally negligible.**
+2. There was a relationship between the methods, but the agreement was not perfect, showing a noticeable bias.
 
 ###### 30 observations per group
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/71c27faa-0f94-40d6-950d-d45336ae7880)
+Just 10 more observations makes a big difference and this time Wald's does the job!
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/1981a4a4-514b-473a-b8fb-f65c1e2543e6)
 
-1. Compared to the 20-sample case, the agreement between both methods is a little bit better
-2. As previously, 0.000001 the relationship breaks
-3. This time there were no cases where the p-values were opposite (~1 vs. ~0)
+LRT didn't improve much...
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/3fbdf89a-ddab-4e84-be44-9b8e3d0be83c)
+
+Rao was similar to Wald's.
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/ec2b0b93-e090-4f55-a3aa-f05fd458cff2)
 
 ###### 50 observations per group
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/acf2fbcb-e33c-4835-ac24-540d5bf5516d)
