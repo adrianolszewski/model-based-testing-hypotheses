@@ -1,4 +1,4 @@
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/eca853f5-0a6c-4ae3-b446-039958754a3f)# Mann-Whitney (-Wilcoxon)
+# Mann-Whitney (-Wilcoxon)
 
 ## Table of contents
 1. Description of the test
