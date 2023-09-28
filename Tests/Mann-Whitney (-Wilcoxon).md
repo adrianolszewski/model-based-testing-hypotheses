@@ -267,6 +267,14 @@ But don't expect a spectacular improvement.
 ###### 30 observations per group
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4e9481e0-dfcd-4076-b0a6-6060d8ae2441)
 
+###### 50 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/36429657-32e5-4fd3-b76d-b5f92f9c2b2e)
+
+###### 100 observations per group
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/640d7a24-a14f-4bd3-a752-3314801a4ddf)
+
+Well, I must say that despite the inevitable divergence, the improvement actually happened. It's always nice to see the theory agreeing with observation :)
+
 ----
 
 #### Comparing numerical data
