@@ -212,28 +212,23 @@ If you operate under H0, then regardless of its shape (ideally quadratic, but he
 This is a simple graphical explanation, but formal proofs can be found in many places, e.g.: [Score Statistics for Current Status Data:
 Comparisons with Likelihood Ratio and Wald Statistics](https://sites.stat.washington.edu/jaw/JAW-papers/NR/jaw-banerjee-05IJB.pdf) or [Mathematical Statistics — Rigorous Derivations and Analysis of the Wald Test, Score Test, and Likelihood Ratio Test](https://towardsdatascience.com/mathematical-statistics-a-rigorous-derivation-and-analysis-of-the-wald-test-score-test-and-6262bed53c55)
 
+In simpler words, under "_no difference_" we are approaching the maximum of this curve which must be reflected by either perspective: "horizontal" (Wald), "vertical" (Wilks LRT) and "slope" (Rao).
 
-Why did I say that _this happens regardless of the log-likelihood curve_?
-Because by approaching "_no difference_" we are approaching the maximum of this curve: a single point, where the 3 measures approach converge to the same value - zero.
+It's ideally observed if the distribution of parameter is normal, which is necessary for the Wald's approach to work properly.
+But remember that normality never holds exactly, as it's only an idealized, theoretical construct! And because the normality is always approximate (at finite sample size), the Wald's and LRT p-values may be **very close** to each other, but not exactly (yet you may not be able to distinguish them in the "good case").
 
-But what will happen under alternative hypothesis?
-**Well, it depends on the log-likelihood curve when we move away from the _zero-difference_ area.**
+/ BTW: That's why you saw, many times, the "t" (if degrees of freedom are easy/possible to derive) or "z" (otherwise; at infinite degrees of freedom) statistic reported for coefficients of most regression models and when testing contrasts. That's because the sampling distribution for these parameters is theoretically assumed to be normal (via Central Limit Theorem). But it's not always the case. For less "obvious" models, like quantile regression, such approximation may be incorrect (or limited only to "good cases"), and then resampling techniques are typically employed (e.g. bootstrap, jacknife). /
 
-### If the log-likehood curve retains the quadratic shape, they will be still in agreement
+**But the more the log-likehood curve deviates from the quadratic shape, the more they will diverge from each other.**
 
-Briefly - the 3 measures will increase in a consistent manner.
+**But what will happen under alternative hypothesis?**
+Briefly - the 3 measures will increase in a more or less consistent manner, but of course they will diverge from each other.
 
-This happens mostly, if the distribution of parameter is  normal, which is necessary for the Wald's approach to work properly.
-For example, for the general linear model (fit via OLS), the Wald's and LRT are asymptotically equivalent. But - again - remember, that normality never holds exactly, as it's only an idealized, theoretical construct! And because the normality is always approximate (at finite sample size), the Wald's and LRT p-values may be **very close** to each other, but not exactly (yet you may not be able to distinguish them in the "good case").
+How much - depends on how much we move away from the _zero-difference_ area n the log-likelihood curve and how close is the parameter sampling distribution to the normal one, resulting also in the shape of the log-likelihood curve. You may observe good agreement in the beginning and then quickly (or just wildly) increasing divergence.
 
-/ That's why you saw, many times, the "t" (if degrees of freedom are easy/possible to derive) or "z" (otherwise; at infinite degrees of freedom) statistic reported for coefficients of most regression models and when testing contrasts. That's because the sampling distribution for these parameters is theoretically assumed to be normal (via Central Limit Theorem). But it's not always the case. For less "obvious" models, like quantile regression, such approximation may be incorrect (or limited only to "good cases"), and then resampling techniques are typically employed (e.g. bootstrap, jacknife).
+**The good news is that the discrepancies will occur at really small p-values, much below any common levels of statistical significance level.**
 
-You can also ask about the LR assessment of their significance, but this require fitting two nested models: with and without the term of interest. That's, by the way, how the classic AN(C)OVA is typically implemented over the linear model and ANY OTHER likelihood-based model (e.g. logistic/gamma/beta/Poisson and other regressions). But note, that the AN(C)OVA can be implemented also via Wald's joint testing of appropriate model coefficients - and then it's possible to extend it to non-likelihood models, e.g. estimated via Generalized Estimating Equations (GEE), for quantile regression and other models.
-
-Now, the log-likelihood curve may have DIFFERENT shape for THE SAME data when used with DIFFERENT models!
-/
-
-Let me show you - two normally distributed samples, much overlapping, but with statistically significant difference in means.
+Let me show you an example. Two normally distributed samples with statistically significantly different means but overlapping to big degree (rejected H0 but not that far from it).
 ```r
 set.seed(1000)
 x1 <- rnorm(100, 50, 20)
@@ -263,11 +258,9 @@ simulate_wilcox_olr_distr(samples = 100, n_group = 100,
 ```
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/62ef5e23-b928-4b6d-aee2-24c9b65ddf1b)
 
-Perfect agreement under the alternative hypothesis (for the normal distribution we get perfect parabolic log-likelihood curve).
+Perfect agreement under the alternative hypothesis.
 
-### If the log-likehood curve deviates from the quadratic shape, they will diverge from each other
-
-Let's look at the previous example, where I separated the two distributions a bit, by decreasing their variances, so the overlap decreased too.
+Now we will separate the two distributions a bit, by decreasing their variances, so the overlap decreased too.
 For the general linear model (including t-test, ANOVA, linear regression) it does not matter, but it matters for the ordinal logistic regression.
 
 ```r
