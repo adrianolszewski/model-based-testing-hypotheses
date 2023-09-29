@@ -196,18 +196,86 @@ Should work and be consistent with Mann-Whitney (-Wilcoxon).
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
 Yes. But the differences will be mostly mostly mostly under the ALTERNATIVE hypothesis and mostly at lower p-values.
 
-This is my observation for numerous examples. I guess that's because (if you imagine the concave (ideally quadratic) curve of log-likelihood for the model parameter representing the group indicator)
-under the null hypothesis:
-- **Wald's:** the difference on the horizontal axis (parameter space) = the difference between compared means (for example) -> 0
-- **Wilk's LRT** the difference on the vertical axis (log-likelihoods) between both models -> 0. So the likelihood ratio -> 1.
-- **Rao's score** the slope of the tangential line approaches zero (Rao' score). And this reflects the fact that under H0 the derivative (score) of the log-likelihood function with respect to the parameter should be close to zero.
+Let's think about the log-likelihood curve for a model parameter representing our group indicator (used for simplest testing).
 
-While, at the alternative hypothesis, they will diverge from each other as the likelihood curve deviates from the quadratic curve.
-See? It all makes sense!
+Regardless of its shape (only must be concave - with single local=global maximum), under the null hypothesis:
+- **Wald's:** the difference on the horizontal axis (parameter space) = the difference between compared means (for example) approaches zero.
+- **Wilk's LRT** the difference on the vertical axis (log-likelihoods) between both models approaches 0 (so the likelihood ratio approaches 1)
+- **Rao's score** the slope of the tangential line (Rao's score) approaches zero as well. / By the way, this reflects the fact that under H0 the derivative (score) of the log-likelihood function with respect to the parameter should be close to zero. /
 
-The good news is that typically the differences will "manifestte" itself below most common significance levels (<0.001)
+Why did I say that _this happens regardless of the log-likelihood curve_?
+Because by approaching "_no difference_" we are approaching the maximum of this curve: a single point, where the 3 measures approach converge to the same value - zero.
 
-For instance, for 0-5 Likert items sampled with some predefined probability:
+But what will happen under alternative hypothesis?
+**Well, it depends on the log-likelihood curve when we move away from the _zero-difference_ area.**
+
+### If the log-likehood curve retains the quadratic shape, they will be still in agreement
+
+Briefly - the 3 measures will increase in a consistent manner.
+
+This happens mostly, if the distribution of parameter is  normal, which is necessary for the Wald's approach to work properly.
+For example, for the general linear model (fit via OLS), the Wald's and LRT are asymptotically equivalent. But - again - remember, that normality never holds exactly, as it's only an idealized, theoretical construct! And because the normality is always approximate (at finite sample size), the Wald's and LRT p-values may be **very close** to each other, but not exactly (yet you may not be able to distinguish them in the "good case").
+
+/ That's why you saw, many times, the "t" (if degrees of freedom are easy/possible to derive) or "z" (otherwise; at infinite degrees of freedom) statistic reported for coefficients of most regression models and when testing contrasts. That's because the sampling distribution for these parameters is theoretically assumed to be normal (via Central Limit Theorem). But it's not always the case. For less "obvious" models, like quantile regression, such approximation may be incorrect (or limited only to "good cases"), and then resampling techniques are typically employed (e.g. bootstrap, jacknife).
+
+You can also ask about the LR assessment of their significance, but this require fitting two nested models: with and without the term of interest. That's, by the way, how the classic AN(C)OVA is typically implemented over the linear model and ANY OTHER likelihood-based model (e.g. logistic/gamma/beta/Poisson and other regressions). But note, that the AN(C)OVA can be implemented also via Wald's joint testing of appropriate model coefficients - and then it's possible to extend it to non-likelihood models, e.g. estimated via Generalized Estimating Equations (GEE), for quantile regression and other models.
+
+Now, the log-likelihood curve may have DIFFERENT shape for THE SAME data when used with DIFFERENT models!
+/
+
+Let me show you - two normally distributed samples, much overlapping, but with statistically significant difference in means.
+```r
+set.seed(1000)
+x1 <- rnorm(100, 50, 20)
+x2 <- rnorm(100, 35, 20)
+
+effectsize::p_overlap(x1, x2)
+Overlap |       95% CI
+----------------------
+0.73    | [0.62, 0.84]
+
+> tidy(t.test(x1, x2, var.equal = TRUE))
+# A tibble: 1 × 10
+  estimate estimate1 estimate2 statistic    p.value parameter conf.low conf.high method            alternative
+     <dbl>     <dbl>     <dbl>     <dbl>      <dbl>     <dbl>    <dbl>     <dbl> <chr>             <chr>      
+1     13.3      50.3      37.0      4.92 0.00000179       198     7.98      18.7 Two Sample t-test two.sided  
+```
+
+Now we will check how p-values from the Wilcoxon test agree with p-values obtained from the ordinal logistic regression under the 3 approaches:
+``` r
+simulate_wilcox_olr_distr(samples = 100, n_group = 100, 
+                          arm_1_distr = "rnorm(n_group, 50, 20)",
+                          arm_2_distr = "rnorm(n_group, 35, 20)", 
+                          title = "N(50,20) vs N(35,20)",
+                          which_p = "Wald") %>% 
+  filter(complete.cases(.)) %>% 
+  plot_differences_between_methods(log_axes = TRUE)
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/62ef5e23-b928-4b6d-aee2-24c9b65ddf1b)
+
+Perfect agreement under the alternative hypothesis (for the normal distribution we get perfect parabolic log-likelihood curve).
+
+### If the log-likehood curve deviates from the quadratic shape, they will diverge from each other
+
+Let's look at the previous example, where I separated the two distributions a bit, by decreasing their variances, so the overlap decreased too.
+For the general linear model (including t-test, ANOVA, linear regression) it does not matter, but it matters for the ordinal logistic regression.
+
+```r
+set.seed(1000)
+x1 <- rnorm(100, 50, 10)
+x2 <- rnorm(100, 35, 10)
+effectsize::p_overlap(x1, x2)
+Overlap |       95% CI
+----------------------
+0.46    | [0.37, 0.56]
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4036752c-ae81-4a58-bd13-aef78d5f6794)
+
+See? We notice some deviation from the line appearing at the smallest p-values.
+
+Now let's switch to an example with two groups containing {0-5} Likert items, sampled with predefined probability.
+For such data and the logit-based models the log-likelihood curve deviates from quadratic form under the alternative hypothesis.
+
 ```r
 # Under H0
 # simulate_wilcox_olr_LR(samples = 100, n_group = 50, set = 0:5, 
@@ -221,6 +289,8 @@ For instance, for 0-5 Likert items sampled with some predefined probability:
 #                        which_p = "Wald") #... and Rao, LRT
 ```
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/c6b14283-caa3-4855-9024-cfcdfbebe705)
+
+See? The good news is that typically the differences will "manifestte" itself below most common significance levels (<0.001)
 
 ## Even worse! You just said that different method of testing can yield OPPOSITE results!
 
