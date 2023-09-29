@@ -194,13 +194,18 @@ Should work and be consistent with Mann-Whitney (-Wilcoxon).
 ----
 
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
-Yes. But the differences will be mostly mostly mostly under the ALTERNATIVE hypothesis and mostly at lower p-values.
+**Yes. But the differences will be mostly mostly mostly under the ALTERNATIVE hypothesis and mostly at lower p-values.**
 
-Wald's, Wilks' and Rao's method are just different ways to answer the question _whether constraining parameters of interest to zero (leaving out corresponding predictor variables from the model) reduces the fit of the model_?
+Recall that Wald's, Wilks' and Rao's method are just different ways to answer the question _whether constraining parameters of interest to zero (leaving out corresponding predictor variables from the model) reduces the fit of the model?_
 
-Let's imagine the log-likelihood curve for a model parameter representing our group indicator (used for dinstinguishing the groups we compare). In regression models, such parameters are the deviation from the intercept. In the simplest 2-group comparison (assuming the general linear model), intercept represents the 1st group mean, and the model parameter is the difference from the 1st group mean. Combining the two gives of course the 2nd group mean. Under the null hypothesis the difference between the means is 0, so is the parameter. This generalized directly to comparing multiple groups through a predictor variable with multiple levels (forming the groups). 
+Let's consider a 2-sample test comparing means (or any other quantity of interest).
+A corresponding (general linear with treatment contrast coding) model will have just the response (dependent) variable and a single, 2-level categorical predictor variable which levels form the groups we want to compare: `response ~ group`.
 
-Now, if removing this predictor from the model (effectively - if the parameter is about zero) didn't change the fit, than - well - it means this predictor was "useless", because it didn't affect the response. Which means that the groups distinguished by this predictor levels were mutually similar: respective "shifts" were zero, all means were similar enough to say they come from the same population. Which means that H0 cannot be rejected.
+The fitted model will have two estimated parameters: the intercept coefficient (representing the 1st group mean, at the reference level of the group indicator) and the coefficient representing the shift (in means or anything) between the 2nd group and the intercept. It's value added to the intercept term will give us the 2nd group mean.
+
+Now, imagine the log-likelihood curve for the "shift" parameter. Under the null hypothesis the difference between the means is 0, so is the parameter. This generalized directly to comparing multiple groups through a predictor variable with multiple levels (forming the groups). 
+
+Now, if removing this predictor from the model (effectively - if the parameter is ~zero) doesn't change the fit, than - well - this predictor is "useless", as  it didn't affect the response. Which means that the groups distinguished by this predictor levels are mutually similar: respective "shifts" are zero, all means are similar enough to say they come from the same population. Which means that H0 cannot be rejected.
 
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/8c3bd8ed-df10-4da1-bfde-d96574c24da5)
 
@@ -226,10 +231,23 @@ Briefly - the 3 measures will increase in a more or less consistent manner, but 
 
 How much - depends on how much we move away from the _zero-difference_ area n the log-likelihood curve and how close is the parameter sampling distribution to the normal one, resulting also in the shape of the log-likelihood curve. You may observe good agreement in the beginning and then quickly (or just wildly) increasing divergence.
 
-**The good news is that the discrepancies will occur at really small p-values, much below any common levels of statistical significance level.**
+**The good news is that the discrepancies will occur at really small p-values, much below any common levels of statistical significance level, so for us, users of the test, the differences will be barely noticeable!**
 
-Let me show you an example. Two normally distributed samples with statistically significantly different means but overlapping to big degree (rejected H0 but not that far from it).
+Let me show you an example. We will compare data sampled from two normal distributions in four settings:
+1. Both groups are sampled from the same N(50, 20). We operate under the null hypothesis. Practically full overlap of empirical distributions.
 ```r
+set.seed(1000)
+x1 <- rnorm(100, 50, 20)
+x2 <- rnorm(100, 50, 20)
+effectsize::p_overlap(x1, x2)
+Overlap |       95% CI
+----------------------
+0.96    | [0.86, 1.00]
+```
+
+2. One group sampled to have a smaller mean, with variances unchanged: N(50, 20) vs. N(35, 20). We operate under alternative hypothesis, but the data overlap mostly (this is important for the ordinal logistic regression, as the log-likelihood data should be more or less symemtric)
+```r
+# Exemplary sampling
 set.seed(1000)
 x1 <- rnorm(100, 50, 20)
 x2 <- rnorm(100, 35, 20)
@@ -246,24 +264,9 @@ Overlap |       95% CI
 1     13.3      50.3      37.0      4.92 0.00000179       198     7.98      18.7 Two Sample t-test two.sided  
 ```
 
-Now we will check how p-values from the Wilcoxon test agree with p-values obtained from the ordinal logistic regression under the 3 approaches:
-``` r
-simulate_wilcox_olr_distr(samples = 100, n_group = 100, 
-                          arm_1_distr = "rnorm(n_group, 50, 20)",
-                          arm_2_distr = "rnorm(n_group, 35, 20)", 
-                          title = "N(50,20) vs N(35,20)",
-                          which_p = "Wald") %>% 
-  filter(complete.cases(.)) %>% 
-  plot_differences_between_methods(log_axes = TRUE)
-```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/62ef5e23-b928-4b6d-aee2-24c9b65ddf1b)
-
-Perfect agreement under the alternative hypothesis.
-
-Now we will separate the two distributions a bit, by decreasing their variances, so the overlap decreased too.
-For the general linear model (including t-test, ANOVA, linear regression) it does not matter, but it matters for the ordinal logistic regression.
-
+3. Like in case 2, but now variance is reduced: N(50, 10) vs. N(35, 10). Now the data are less overlapping (bigger separation). This will distort the log-likelihood curve.
 ```r
+# Exemplary sampling
 set.seed(1000)
 x1 <- rnorm(100, 50, 10)
 x2 <- rnorm(100, 35, 10)
@@ -272,28 +275,34 @@ Overlap |       95% CI
 ----------------------
 0.46    | [0.37, 0.56]
 ```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4036752c-ae81-4a58-bd13-aef78d5f6794)
 
-See? We notice some deviation from the line appearing at the smallest p-values.
-
-Now let's switch to an example with two groups containing {0-5} Likert items, sampled with predefined probability.
-For such data and the logit-based models the log-likelihood curve deviates from quadratic form under the alternative hypothesis.
-
+4. Like in case 3, with further reduced variance: N(50, 5) vs. N(35, 5).
 ```r
-# Under H0
-# simulate_wilcox_olr_LR(samples = 100, n_group = 50, set = 0:5, 
-#                        arm_1_prob =  c(20, 10, 5, 2, 2, 2),
-#                        arm_2_prob =  c(20, 10, 5, 2, 2, 2),
-#                        which_p = "Wald") #... and Rao, LRT 
-# Under H1
-# simulate_wilcox_olr_LR(samples = 100, n_group = 50, set = 0:5, 
-#                        arm_1_prob =  rev(c(20, 10, 5, 2, 2, 2)),
-#                        arm_2_prob =  c(20, 10, 5, 2, 2, 2),
-#                        which_p = "Wald") #... and Rao, LRT
+set.seed(1000)
+x1 <- rnorm(100, 50, 5)
+x2 <- rnorm(100, 35, 5)
+effectsize::p_overlap(x1, x2)
+Overlap |       95% CI
+----------------------
+0.13    | [0.08, 0.19]
 ```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/c6b14283-caa3-4855-9024-cfcdfbebe705)
 
-See? The good news is that typically the differences will "manifestte" itself below most common significance levels (<0.001)
+And now let's have a look at the p-values obtained from the ordinal logistic regression (as if we applied the Mann-Whitney test to normally distributed data) by
+employing the three metehods:
+
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/8c684e6e-cb79-4c79-80db-0579044a36e6)
+
+As expected, the methods gave very similar p-values (look especially at the 1st, top-left plot for H0). Even, if differences occurred, they were too small to be observed. That's because the p-values spanned several orders of magnitude! And we could end here: the situation is perfect!
+1. ideal agreement under H0 (where we are worrying the most for wrong rejections; type-1 error)
+2. potencial discrepancies under H1 at so low magnitudes, so we can totally ignore it (in this case).
+
+Let's log-transform the axes to have a better view:
+OK, now we can observe the differences. No surprise they were barely noticeable at these magnitudes!
+Generally we can observe, that the lower p-value, the bigger disrepancy. But why?
+
+That's simple - because we more farther and farther from H0. With the convex curve, at some point, far from the maximum, small changes in argument (X) will result in big changes of value (Y). Here I have no idea what's the shape of the log-likelihood curve, which can even amplify the problem. So let's ignore it.
+
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/62977972-f69e-49ba-9431-d331edfda0f4)
 
 ## Even worse! You just said that different method of testing can yield OPPOSITE results!
 
