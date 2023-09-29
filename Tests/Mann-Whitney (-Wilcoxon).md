@@ -7,6 +7,8 @@
 4. References
 5. [Simulations - how well the model-based approach replicates the classic test](#simulations)
 
+Notes: I will use the classic implementation without continuity correction and exact calculation of p-values. Of you feel lost about all those variations on this topic, read this post: [[R] The three routines in R that calculate the wilcoxon signed-rank test give different p-values... which is correct?](https://stat.ethz.ch/pipermail/r-help/2011-April/274931.html)
+
 ----
 <a name="description"></a>
 ## Description of the test
