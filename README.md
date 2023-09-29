@@ -207,7 +207,8 @@ Should work and be consistent with Mann-Whitney (-Wilcoxon).
 ----
 
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
-**Yes. But the differences will be mostly mostly mostly under the ALTERNATIVE hypothesis and mostly at lower p-values.**
+
+**Yes. But the differences will happen rather under the ALTERNATIVE hypothesis and mostly at very low p-values.**
 
 Recall that Wald's, Wilks' and Rao's method are just different ways to answer the question _whether constraining parameters of interest to zero (leaving out corresponding predictor variables from the model) reduces the fit of the model?_
 
