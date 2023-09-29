@@ -304,6 +304,10 @@ That's simple - because we more farther and farther from H0. With the convex cur
 
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/62977972-f69e-49ba-9431-d331edfda0f4)
 
+By this occasion, let's have a lookg how the p-values differs with respect to the Mann-Whitney (-Wilcoxon) test:
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/51718316-4a2e-41d6-a951-249617404a23)
+
+
 ## Even worse! You just said that different method of testing can yield OPPOSITE results!
 
 Yes, Wald's and LRT may yield opposite results, e.g. Wald's p-value = 0.8 vs. LRT p-value < 0.001.
