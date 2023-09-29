@@ -188,7 +188,7 @@ Logistic (Proportional Odds) Ordinal Regression Model
  ind=arm2 9.1781 1.7356 5.29   <0.0001 
 ```
 
-And sometimes it does not work at all and then you cannot proceed with this model. Try OLS with ranked response `lm(rank(y) ~ predictor)` instead.
+And sometimes it does not work at all and then you cannot proceed with this model. Try OLS with signed-ranked response instead.
 Should work and be consistent with Mann-Whitney (-Wilcoxon).
 
 ----
@@ -196,12 +196,22 @@ Should work and be consistent with Mann-Whitney (-Wilcoxon).
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
 Yes. But the differences will be mostly mostly mostly under the ALTERNATIVE hypothesis and mostly at lower p-values.
 
-Let's think about the log-likelihood curve for a model parameter representing our group indicator (used for simplest testing).
+Wald's, Wilks' and Rao's method are just different ways to answer the question _whether constraining parameters of interest to zero (leaving out corresponding predictor variables from the model) reduces the fit of the model_?
 
-Regardless of its shape (only must be concave - with single local=global maximum), under the null hypothesis:
-- **Wald's:** the difference on the horizontal axis (parameter space) = the difference between compared means (for example) approaches zero.
-- **Wilk's LRT** the difference on the vertical axis (log-likelihoods) between both models approaches 0 (so the likelihood ratio approaches 1)
-- **Rao's score** the slope of the tangential line (Rao's score) approaches zero as well. / By the way, this reflects the fact that under H0 the derivative (score) of the log-likelihood function with respect to the parameter should be close to zero. /
+Let's imagine the log-likelihood curve for a model parameter representing our group indicator (used for dinstinguishing the groups we compare). In regression models, such parameters are the deviation from the intercept. In the simplest 2-group comparison (assuming the general linear model), intercept represents the 1st group mean, and the model parameter is the difference from the 1st group mean. Combining the two gives of course the 2nd group mean. Under the null hypothesis the difference between the means is 0, so is the parameter. This generalized directly to comparing multiple groups through a predictor variable with multiple levels (forming the groups). 
+
+Now, if removing this predictor from the model (effectively - if the parameter is about zero) didn't change the fit, than - well - it means this predictor was "useless", because it didn't affect the response. Which means that the groups distinguished by this predictor levels were mutually similar: respective "shifts" were zero, all means were similar enough to say they come from the same population. Which means that H0 cannot be rejected.
+
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/8c3bd8ed-df10-4da1-bfde-d96574c24da5)
+
+If you operate under H0, then regardless of its shape (ideally quadratic, but here let's agree on a concave one, with single maximum):
+- **Wald's:** the difference between the true value of the parameter (here: the difference between groups) = 0 and the estimated parameter p, measured on the horizontal axis (parameter space), approaches 0.
+- **Wilk's LRT** the difference on the vertical axis (log-likelihoods) between both models approaches 0 (so the likelihood ratio approaches 1) - no gain.
+- **Rao's score** the slope of the tangential line (Rao's score) approaches zero as well. / Which reflects the fact that under H0 the derivative (score) of the log-likelihood function with respect to the parameter should --> zero. /
+
+This is a simple graphical explanation, but formal proofs can be found in many places, e.g.: [Score Statistics for Current Status Data:
+Comparisons with Likelihood Ratio and Wald Statistics](https://sites.stat.washington.edu/jaw/JAW-papers/NR/jaw-banerjee-05IJB.pdf) or [Mathematical Statistics — Rigorous Derivations and Analysis of the Wald Test, Score Test, and Likelihood Ratio Test](https://towardsdatascience.com/mathematical-statistics-a-rigorous-derivation-and-analysis-of-the-wald-test-score-test-and-6262bed53c55)
+
 
 Why did I say that _this happens regardless of the log-likelihood curve_?
 Because by approaching "_no difference_" we are approaching the maximum of this curve: a single point, where the 3 measures approach converge to the same value - zero.
