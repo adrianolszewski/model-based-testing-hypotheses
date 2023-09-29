@@ -245,7 +245,7 @@ Overlap |       95% CI
 0.96    | [0.86, 1.00]
 ```
 
-2. One group sampled to have a smaller mean, with variances unchanged: N(50, 20) vs. N(35, 20). We operate under alternative hypothesis, but the data overlap mostly (this is important for the ordinal logistic regression, as the log-likelihood data should be more or less symemtric)
+2. One group sampled to have a smaller mean, with variances unchanged: N(50, 20) vs. N(35, 20). We operate under alternative hypothesis, but the data overlap mostly (this is important for the ordinal logistic regression, as the log-likelihood data should be more or less symmetric)
 ```r
 # Exemplary sampling
 set.seed(1000)
