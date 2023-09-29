@@ -118,55 +118,6 @@ lapply(1:100, function(i) {
 ```
 ![obraz](https://github.com/adrianolszewski/Logistic-regression-is-regression/assets/95669100/a75158cb-c47e-44d8-8e33-acb98c6534a2)
 
-#### The comparison engine
-``` r
-simulate_wilcox_olr <- function(samples, n_group, set, arm_1_prob, arm_2_prob, which_p) {
-  set.seed(1000)
-  
-  mixed_hyp <- is.null(arm_1_prob) | is.null(arm_2_prob)
-  
-  data.frame( 
-    do.call( 
-      rbind, 
-      lapply(1:samples, function(i) {
-        print(i)
-        
-        if(mixed_hyp) {
-          arm_1_prob <- sample(x = 1:10, size = 6, replace = FALSE)
-          arm_2_prob <- sample(x = 1:10, size = 6, replace = FALSE)
-        }
-        
-        stack(
-          data.frame(arm1 = sample(set, size=n_group, replace=TRUE, prob = arm_1_prob),
-                     arm2 = sample(set, size=n_group, replace=TRUE, prob = arm_2_prob))) %>% 
-          mutate(values_ord = ordered(values), ind = factor(ind)) -> data
-        
-        #m <- joint_tests(MASS::polr(values_ord ~ ind , data = data, Hess=TRUE))$p.value)
-        m <- rms::orm(values_ord ~ ind , data = data)
-  
-        if(!m$fail)
-          case_when(which_p == "Wald" ~ as.numeric(2*pnorm(abs(m$coefficients["ind=arm2"] / sqrt(m$var["ind=arm2","ind=arm2"])), lower.tail = FALSE)),
-                    which_p == "LRT" ~ as.numeric(m$stats["P"]),
-                    which_p == "Rao" ~ as.numeric(m$stats["Score P"])) -> Model_p
-        else
-            Model_p <- NA
-        
-        c(iter = i,
-          n_group = n_group,
-          Test  = tidy(wilcox.test(values~ind, data=data, exact = FALSE, adjust = FALSE))$p.value,
-          Model = Model_p)
-      }))) -> result
-  
-  attr(result, "properties") <- list(arm_1_prob = arm_1_prob, 
-                                     arm_2_prob = arm_2_prob, 
-                                     under_null = ifelse(mixed_hyp, NA, identical(arm_1_prob, arm_2_prob)),
-                                     samples = samples,
-                                     n_group = n_group,
-                                     title = "",
-                                     method = which_p)
-  return(result)
-}
-```
 #### Results
 ##### Under H0 - same probabilities of obtating each score in both groups = same ordering of observations
 ###### 20 observations per group
