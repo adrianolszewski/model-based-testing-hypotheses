@@ -182,7 +182,7 @@ compare_likert_h0_h1_3methods <- function(n_group, log_transform=TRUE,
 # Comparing test vs. model for the 3 methods
 ```r
 
-compare_3methods_distr <- function(n_group, samples=100,
+compare_3methods_distr_model_vs_test <- function(n_group, samples=100,
                                    distr_pair_spec = list("N(50,20) vs. N(50,20)" = 
                                                             c(arm_1_distr = "rnorm(n_group, mean=50, sd=20)", 
                                                               arm_2_distr = "rnorm(n_group, mean=50, sd=20)",
@@ -247,7 +247,7 @@ compare_3methods_distr <- function(n_group, samples=100,
 
 # Comparing p-values from model only - 3 approaches
 ```r
-compare_3methods_distr1 <- function(n_group, samples=100,
+compare_3methods_distr <- function(n_group, samples=100,
                                    distr_pair_spec = list("N(50,20) vs. N(50,20)" = 
                                                             c(arm_1_distr = "rnorm(n_group, mean=50, sd=20)", 
                                                               arm_2_distr = "rnorm(n_group, mean=50, sd=20)",
