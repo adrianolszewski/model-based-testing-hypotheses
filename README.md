@@ -68,8 +68,8 @@ Or differently. Let's consider a simple model with just one 3-level categorical 
   
 - if the variable of interest has statistically significant impact on response (means), then removing it from the model will worsen it (now "throwing" everything to theoveral mean - the intercept), so the residual variance will increase. You can test this change in variance by comparing the two nested model. This is the "omnibus" F-test you likely know from the ANOVA textbooks.
 
-- In case of the GLM we replace the residual variance with deviance, directly related to the likelihood ratio. It's still based on model comparison - this time through the model likelihood ratio. If LR <> 1, then it means that removing the variable of interest worsened the fit. That's the Wilk's LRT aproach, employing the chi2 distribution.
-- 
+- In case of the GLM we replace the residual variance with deviance, directly related to the likelihood ratio. It's still based on model comparison - this time through the model likelihood ratio. If LR <> 1, then it means that removing the variable of interest worsened the fit. That's the Wilk's LRT aproach, employing the $\chi^2$ distribution.
+
 **That's exactly how the R's anova(), car::Anova(), emmeans::joint_tests() and a few more methods work.**
 
 PS: let's recall, by the way, that Chi2 is a limiting distribution for F under infinite denominator degrees of freedom:
@@ -84,7 +84,7 @@ You will find the $\chi^2$ distribution in at least two key places:
 You'll also meet the name _Wald's_ in 3 contexts, when the Wald's approach is applied to
 - a single-parameter inference, e.g. when doing single comparison (contrast), and the degrees of freedom are known, you will see statistical packages reporting "Wald t". If you look at the formula, it looks much like a single-sample t-test (nominator is the difference, denominator - standard deviation), but that's a different creature and don't confuse the two. It's rather "t ratio". It's t-distributed only under normal sampling distribution of the parameter.
   
-- a single-parameter inference, but the degrees of freedom aren't known (or are hard to guess) and assumed to be infinite. Then you will see statistical packages reporting "Wald z". You may find also "Wald chi2" - but that's the same, asymptotically z^2 = $\chi^2$.
+- a single-parameter inference, but the degrees of freedom aren't known (or are hard to guess) and assumed to be infinite. Then you will see statistical packages reporting "Wald z". You may find also "Wald chi2" - but that's the same, asymptotically $z^2 = \chi^2$.
   
 - a multi-pararameter (like in ANOVA) asymptotic (under infinite degrees of freedom) inference. Then you will see statistical packages reporting "Wald chi2" or similar just "chi2". You may also find something like "Score chi2", which refers to Rao's approach to testing.
 
@@ -254,7 +254,7 @@ vs.
    
 10. Sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? And sometimes the LRT is not available, as mentioned above. Happy those, who have both at their disposal.
 
-11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in covarite-adjusted planned comparisons, where we cannot do it just by specifying nested models. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, which means that "sky is the limit" when testing.
+11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in more complex analysis of contrasts (e.g. in planned covariate-adjusted comparisons), where it's hard or just impossible to specify the nested models by hand. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, **which means that "sky is the only limit" when testing contrasts of any complexity**. With LRT it will be much harder to obtain appropriate parametrization.
     
 12. **Wald's inference is not transformation (or re-parametrization) invariant**. If you use Wald's to calculate p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!). On the contrary, the **LRT IS transformation invariant** and will have exactly the same value regardless of any monotononus transformation of the parameter.
 
@@ -268,7 +268,7 @@ vs.
 1 asymptotic 4 5  0.8 0.449391 1.150609    # 1.15?
 ```
 /
-
+13. There are another problematic areas for Wald's testing, like mixed models (ironically, numerous statistical packages offer only (or mostly) such inference due to big complexity of the solutions!). For example read: [Paper 5088 -2020; A Warning about Wald Tests](https://support.sas.com/resources/papers/proceedings20/5088-2020.pdf)
 
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
 
