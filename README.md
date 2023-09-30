@@ -65,8 +65,28 @@ For the general linear model (under the hood of the "textbook AN(C)OVA" and t-te
 
 Or differently. Let's consider a simple model with just one 3-level categorical predictor variable. You can test the impact of this variable in 2 ways:
 - the estimated model coefficients are shifts (differences) between the corresponding group means and the intercept-related mean, so you can test theset coefficiets jointly for the effect of the whole variable. That's the Wald's approach.
-- if the variable of interest has statistically significant impact on response (means), then removing it from the model will worsen it (now "throwing" everything to theoveral mean - the intercept), so the residual variance will increase. You can test this change in variance. This is the :omnibus" F-test you likely know from the ANOVA textbooks. (for the GLM you will also notice Chi2 test, which is a limiting distribution for F, when the denominator degrees of freedom are unknown or difficult to infer and assumed to be infinite; This is exactly like approximating the t-test with known degrees of freedom with z-test).
-- you can also check the fits by comparing the model likelihoods, through the likelihood ratio. If different from 1, then it means that removing the variable of interest worsened the fit. That's the Wilk's LRT aproach.
+  
+- if the variable of interest has statistically significant impact on response (means), then removing it from the model will worsen it (now "throwing" everything to theoveral mean - the intercept), so the residual variance will increase. You can test this change in variance by comparing the two nested model. This is the "omnibus" F-test you likely know from the ANOVA textbooks.
+
+- In case of the GLM we replace the residual variance with deviance, directly related to the likelihood ratio. It's still based on model comparison - this time through the model likelihood ratio. If LR <> 1, then it means that removing the variable of interest worsened the fit. That's the Wilk's LRT aproach, employing the chi2 distribution.
+- 
+**That's exactly how the R's anova(), car::Anova(), emmeans::joint_tests() and a few more methods work.**
+
+PS: let's recall, by the way, that Chi2 is a limiting distribution for F under infinite denominator degrees of freedom:
+If $X \sim F(n_1, n_2)$, the limiting distribution of $n_1X$ as $n_2 \rightarrow \infty$ is the $\chi^2$ distribution with $n_1$ degrees of freedom.
+https://www.math.wm.edu/~leemis/chart/UDR/PDFs/FChisquare.pdf
+
+You will find the $\chi^2$ distribution in at least two key places:
+- when comparing models via LRT: under H0, as the sample size $n \rightarrow \infty$, the test statistic $\lambda _{\text{LR}}$ will be asymptotically $\chi^2$  distributed with degrees of freedom = to the difference in dimensionality of $\Theta$ - $\Theta_0$.
+
+- when you perform Wald's testing on multiple parameters, then the distribution of the test statistic converges asymptotically with distribution to $\chi^2$.
+
+You'll also meet the name _Wald's_ in 3 contexts, when the Wald's approach is applied to
+- a single-parameter inference, e.g. when doing single comparison (contrast), and the degrees of freedom are known, you will see statistical packages reporting "Wald t". If you look at the formula, it looks much like a single-sample t-test (nominator is the difference, denominator - standard deviation), but that's a different creature.
+  
+- a single-parameter inference, but the degrees of freedom aren't known (or are hard to guess) and assumed to be infinite. Then you will see statistical packages reporting "Wald z".
+  
+- a multi-pararameter asymptotic inference (under infinite degrees of freedom), then you will see statistical packages reporting "Wald chi2" or similar.
 
 ## What will you present in this repository?
 
@@ -224,19 +244,19 @@ OK, now let's make some notes:
 
 6. Wald's is faster than LRT as it needs only a single model fitting. On the contrary, LRT needs at least 2 fitting to compare 2 nested models: with and without the term you want to assess (you can also compare other settings, like covariance structures). With the increasing number of variables to assess, the number of compared models increases. This becomes especially important if you make inference under the multiple imputation condition (MICE) process, where some analysis is repeated on each imputed dataset and then the results are pooled. In this case the amount of necessary time may be not acceptable.
   
-7. LRT is often considered more conservative than Wald's approach. Some say it's also more precise - but what does it actually mean? It's less likely to reject a null hypothesis when it's true (i.e., it has a lower Type I error rate). This conservativeness can be advantageous when you want to avoid making false-positive errors, such as in clinical trials or other critical applications. In contrast, Wald's test can sometimes be more liberal, leading to a higher likelihood of false positives.
-  
-8. Wald's may not perform well when sample sizes are small or when the distribution of the parameter estimates deviates from normality. LRT is robust to the non-normality of the sampling distribution of the parameter of interest.
+7. LRT is found more conservative than Wald's approach in small samples, because of the relationship between the value of statistic obtained with these three approaches: Wald >= LR >= Rao ([Ranking of Wald, LR and score statistic in the normal linear regression model](https://stats.stackexchange.com/questions/449494/ranking-of-wald-lr-and-score-statistic-in-the-normal-linear-regression-model). It means, that it's less likely to reject a null hypothesis when it's true (i.e., LR has a lower Type-I error rate). This conservativeness can be advantageous when you want to avoid making false-positive errors, such as in clinical trials or other critical applications. In contrast, Wald's test can be more liberal, leading to a higher likelihood of false positives. That's why typically it's advised to select LRT over Wald's - as long as you are free to choose.
+
+Let's summarize it with: "_When the sample size is small to moderate, the Wald test is the least reliable of the three tests. We should not trust it for such a small n as in this example (n = 10). Likelihood-ratio inference and score-test based inference are better in terms of actual error probabilities coming close to matching nominal levels. A marked divergence in the values of the three statistics indicates that the distribution of the ML estimator may be far from normality. In that case, small-sample methods are more appropriate than large-sample methods._ (Agresti, A. (2007). An introduction to categorical data analysis (2nd edition). John Wiley & Sons.)"
+vs.
+"_In conclusion, although the likelihood ratio approach has clear statistical advantages, computationally the Wald interval/test is far easier. In practice, provided the sample size is not too small, and the Wald intervals are constructed on an appropriate scale, they will usually be reasonable (hence their use in statistical software packages). In small samples however the likelihood ratio approach may be preferred._" [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)
+
+9. Wald's may not perform well when sample sizes are small or when the distribution of the parameter estimates deviates from normality. In other words, Wald tests assume that the log-likelihood curve (or surface) is quadratic. LRT does not, thus is more robust to the non-normality of the sampling distribution of the parameter of interest.
    
-9. Sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? And sometimes the LRT is not available, as mentioned above. Happy those, who have both at their disposal.
+10. Sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? And sometimes the LRT is not available, as mentioned above. Happy those, who have both at their disposal.
 
-10. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in covarite-adjusted planned comparisons, where we cannot do it just by specifying nested models. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, which means that "sky is the limit" when testing.
+11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in covarite-adjusted planned comparisons, where we cannot do it just by specifying nested models. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, which means that "sky is the limit" when testing.
     
-11. "_When the sample size is small to moderate, the Wald test is the least reliable of the three tests. We should not trust it for such a small n as in this example (n = 10). Likelihood-ratio inference and score-test based inference are better in terms of actual error probabilities coming close to matching nominal levels. A marked divergence in the values of the three statistics indicates that the distribution of the ML estimator may be far from normality. In that case, small-sample methods are more appropriate than large-sample methods._ (Agresti, A. (2007). An introduction to categorical data analysis (2nd edition). John Wiley & Sons.)"
-
-12. "_In conclusion, although the likelihood ratio approach has clear statistical advantages, computationally the Wald interval/test is far easier. In practice, provided the sample size is not too small, and the Wald intervals are constructed on an appropriate scale, they will usually be reasonable (hence their use in statistical software packages). In small samples however the likelihood ratio approach may be preferred._" [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)
-
-13. **Wald's inference is not transformation invariant**. If you calculate Wald's p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!).
+12. **Wald's inference is not transformation invariant**. If you calculate Wald's p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!).
 Just think about it - Wald's assumes normally distributed data, which briefly means **SYMMETRIC**. 0-1 truncated data will never be so, that's why you may easily obtain negative or >1 bounds of the confidence interval.
 
 See?
