@@ -1,13 +1,15 @@
 # Introduction
 Testing hypotheses through statistical models opens a universe of new possibilities. Learn how to improve your daily work with this approach.
 
-It's not a new idea. In my old books (~2010) in statistics ANOVA and t-test were mentioned as special cases of the general linear model. That was the first time I realized that every parametric test (and numerous non-parametric ones) are inferential procedures **applied on a top** of various models. Sometimes the relationship is easy to find (like ANOVA vs. assessment of the main (and interaction) effects of the general linear model, or reduction of the residual variance in during comparison of nested models), and sometimes it's not (like Wald's z-test for proportions or Breslow-Day test and the logistic regression. You can also find excellent resources on the Internet, like [Common statistical tests are linear models (or: how to teach stats)] (https://lindeloev.github.io/tests-as-linear/).
+It's not a new idea. In my old books (~2010) in statistics ANOVA and t-test were mentioned as special cases of the general linear model. That was the first time I realized that every parametric test (and numerous non-parametric ones) are inferential procedures **applied on a top** of various models. Then it turned out, that many non-parametric tests also can be replicated through parametric or semi-parametric models!
 
-I wanted to and summarize my own experience with model-based testing, used in my work (biostatistics in clinical trials) on daily basis.
+Sometimes the relationship is easy to find (like ANOVA vs. assessment of the main and interaction effects of the general linear model, or reduction of the residual variance when comparing nested models), and sometimes it's not (like Wald's z-test for proportions or Breslow-Day test and the logistic regression. You can also find excellent resources on the Internet, like [Common statistical tests are linear models (or: how to teach stats)] (https://lindeloev.github.io/tests-as-linear/).
+
+I wanted to summarize my own experience with model-based testing, used in my work (biostatistics in clinical trials) on daily basis.
 
 So far I examined Wald's and Rao z test for 2+ proportions (+ ANOVA-like), Cochran-Mantel-Haenszel (CMH), Breslow-Day, Cochran-Armitage, McNemar, Cochran Q, Friedman, Mann-Whitney (-Wilcoxon), Kruskal-Wallis replicated with the logistic regression. But this extends much more! General and Generalized Linear Models fit via Generalized Least Square, Generalized Estimating Equations and through Generalized Linear Mixed Models, (Mixed-effect) Quantile regression, Cox proportional-hazard regression, Accelerated Failure Time, Tobit regression, Simplex regression and dozens of others models will be at your disposal to test hypotheses in a way you probably were never told.
 
-This document is incomplete and dynamic. I will update it over time. 
+This document is incomplete and dynamic. I will update it over time, so stay tuned.
 
 You will find descriptions of subsequent tests in the [Test subdirectory](https://github.com/adrianolszewski/model-based-testing-hypotheses/tree/main/Tests). So far I started describing the [Mann-Whitney-Wilcoxon vs. Ordinal Logistic Regression](https://github.com/adrianolszewski/model-based-testing-hypotheses/blob/main/Tests/Mann-Whitney%20(-Wilcoxon).md). Still a lot is to be done: https://github.com/adrianolszewski/model-based-testing-hypotheses/blob/main/Tests/Various%20tests%20to%20describe%20one%20by%20one.md
 
@@ -38,7 +40,7 @@ How about the _quantile regression_ (especially combined with random effects) ca
 **But that's not all - try doing THIS with classic tests!**
 
 1. ordinary tests won't allow you to control for covariates. Goodbye more advanced analyses.
-2. most classic tests cannot handle more complex m x n-way designs. Want to test some outcome across multiple groups rendered by `sex * visit * treatment_arm`? Forget! You will likely need to run multiple simple tests and they won't be able to detect inter-variable relationships. 
+2. most classic non-parametric tests cannot handle more complex m x n-way designs. Want to test some outcome across multiple groups rendered by `sex * visit * treatment_arm`? Forget! You will likely need to run multiple simple tests and they won't be able to detect inter-variable relationships. 
 3. most of the classic tests won't be able to test interactions between multiple factors (a few modern ones, like ATS (ANOVA-Type Statistic) or WTS (Wald-Type Statistic) can do this, but only in a limited scope (1-level interaction between just 2 factors).
 4. classic tests won't allow you to test simple effects via contrasts, e.g.: "Visit: 3, Arm: Treatment | Male vs Female effect" vs. "Visit 3, Arm: Control | Male vs Female effect". **For the model-based testing it's a piece of cake**.
 5. you may simply NOT KNOW which test to use! Believe me or not, there are 850+ (EIGHT HUNDRED FIFTY!) statistical tests and counting. A colleague of mine has been counting them for years (with my little support). With a model - you don't care about all these "version", just provide the formula, set some parameters and test the hypotheses you need. Need a trest for trend? Just user ordinal factor for your time variable.
