@@ -1,4 +1,3 @@
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/60421f20-b9d1-43cb-a612-233b9a72b67c)# Introduction
 Testing hypotheses through statistical models opens a universe of new possibilities. Learn how to improve your daily work with this approach.
 
 It's not a new idea. In my old Polish books (~2007-2012) in statistics ANOVA and t-test were mentioned as special cases of the general linear model. That was the first time I realized that every parametric test (and numerous non-parametric ones) are inferential procedures **applied on a top** of various models. Later I found this approach in other books too.
