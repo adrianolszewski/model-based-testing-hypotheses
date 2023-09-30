@@ -82,11 +82,11 @@ You will find the $\chi^2$ distribution in at least two key places:
 - when you perform Wald's testing on multiple parameters, then the distribution of the test statistic converges asymptotically with distribution to $\chi^2$.
 
 You'll also meet the name _Wald's_ in 3 contexts, when the Wald's approach is applied to
-- a single-parameter inference, e.g. when doing single comparison (contrast), and the degrees of freedom are known, you will see statistical packages reporting "Wald t". If you look at the formula, it looks much like a single-sample t-test (nominator is the difference, denominator - standard deviation), but that's a different creature.
+- a single-parameter inference, e.g. when doing single comparison (contrast), and the degrees of freedom are known, you will see statistical packages reporting "Wald t". If you look at the formula, it looks much like a single-sample t-test (nominator is the difference, denominator - standard deviation), but that's a different creature and don't confuse the two. It's rather "t ratio". It's t-distributed only under normal sampling distribution of the parameter.
   
-- a single-parameter inference, but the degrees of freedom aren't known (or are hard to guess) and assumed to be infinite. Then you will see statistical packages reporting "Wald z".
+- a single-parameter inference, but the degrees of freedom aren't known (or are hard to guess) and assumed to be infinite. Then you will see statistical packages reporting "Wald z". You may find also "Wald chi2" - but that's the same, asymptotically z^2 = $\chi^2$.
   
-- a multi-pararameter asymptotic inference (under infinite degrees of freedom), then you will see statistical packages reporting "Wald chi2" or similar.
+- a multi-pararameter (like in ANOVA) asymptotic (under infinite degrees of freedom) inference. Then you will see statistical packages reporting "Wald chi2" or similar just "chi2". You may also find something like "Score chi2", which refers to Rao's approach to testing.
 
 ## What will you present in this repository?
 
@@ -256,10 +256,8 @@ vs.
 
 11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in covarite-adjusted planned comparisons, where we cannot do it just by specifying nested models. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, which means that "sky is the limit" when testing.
     
-12. **Wald's inference is not transformation invariant**. If you calculate Wald's p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!).
-Just think about it - Wald's assumes normally distributed data, which briefly means **SYMMETRIC**. 0-1 truncated data will never be so, that's why you may easily obtain negative or >1 bounds of the confidence interval.
-
-See?
+12. **Wald's inference is not transformation (or re-parametrization) invariant**. If you use Wald's to calculate p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!).
+Just think about it - Wald's assumes normally distributed data, which briefly means **SYMMETRIC**. 0-1 truncated data will never be so, that's why you may easily obtain negative or >1 bounds of the confidence interval. See?
 ```r
 > binom::binom.asymp(x=1, n=5)
       method x n mean     lower    upper
@@ -268,6 +266,7 @@ See?
       method x n mean    lower    upper
 1 asymptotic 4 5  0.8 0.449391 1.150609    # 1.15?
 ```
+On the contrary, the **LRT IS transformation invariant** and will have exactly the same value regardless of any monotononus transformation of the parameter.
 
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
 
