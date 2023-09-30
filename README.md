@@ -256,8 +256,9 @@ vs.
 
 11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in covarite-adjusted planned comparisons, where we cannot do it just by specifying nested models. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, which means that "sky is the limit" when testing.
     
-12. **Wald's inference is not transformation (or re-parametrization) invariant**. If you use Wald's to calculate p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!).
-Just think about it - Wald's assumes normally distributed data, which briefly means **SYMMETRIC**. 0-1 truncated data will never be so, that's why you may easily obtain negative or >1 bounds of the confidence interval. See?
+12. **Wald's inference is not transformation (or re-parametrization) invariant**. If you use Wald's to calculate p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!). On the contrary, the **LRT IS transformation invariant** and will have exactly the same value regardless of any monotononus transformation of the parameter.
+
+/ Side note: Wald's assumes normally distributed parameter sampling, which briefly means **symmetry**. 0-1 truncated data will never be so, that's why you may easily obtain negative or >1 bounds of the confidence interval. See? I believe that's the manifestation of _Hauck–Donner effect in binomial models_ when the estimated parameter is close to the boundary of the parameter space (here close to 0 or 1 and at a very small sample size). 
 ```r
 > binom::binom.asymp(x=1, n=5)
       method x n mean     lower    upper
@@ -266,7 +267,8 @@ Just think about it - Wald's assumes normally distributed data, which briefly me
       method x n mean    lower    upper
 1 asymptotic 4 5  0.8 0.449391 1.150609    # 1.15?
 ```
-On the contrary, the **LRT IS transformation invariant** and will have exactly the same value regardless of any monotononus transformation of the parameter.
+/
+
 
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
 
