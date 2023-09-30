@@ -22,9 +22,7 @@ You will find descriptions of subsequent tests in the [Test subdirectory](https:
 Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
 A more advanced inferential analysis often goes FAR beyond that these tests can do.
 
-For our considerations it's important to say, that **by applying Likelihood Ratio, Rao's, or Wald's testing procedure to an appropriate model you will be (mostly) able to reproduce what the classic "plain" tests do (and much more!)** (find below a section dedicated to these 3 methods).
-
-This way, by employing appropriate model followed by the metioned testing procedures, you can obtain perform complex planned and exploratory hypothesis testing, perform  Type-II and Type-III ANOVA-like analysis over Poisson or logistic regression... Actually, you can plug-in any single model.
+For our considerations it's important to say, that **by applying Likelihood Ratio, Rao's, or Wald's testing procedure to an appropriate model you will be (mostly) able to reproduce what the classic "plain" tests do but also go far beyond that** (find below a section dedicated to these 3 methods).
 
 So what?
 
@@ -42,18 +40,33 @@ And that's not all!
 
 How about the _quantile regression_ (especially combined with random effects) can handle even more! And yes - it's a non-parametric method, BUT at least well interpretable (what cannot be said about Mann-Whitney (-Wilcoxon), for instance.
 
-**But that's not all - try doing THIS with classic tests!**
+Let's summarize the key facts:
 
-1. ordinary tests won't allow you to control for covariates. Goodbye more advanced analyses.
-2. most classic non-parametric tests cannot handle more complex m x n-way designs. Want to test some outcome across multiple groups rendered by `sex * visit * treatment_arm`? Forget! You will likely need to run multiple simple tests and they won't be able to detect inter-variable relationships. 
-3. most of the classic tests won't be able to test interactions between multiple factors (a few modern ones, like ATS (ANOVA-Type Statistic) or WTS (Wald-Type Statistic) can do this, but only in a limited scope (1-level interaction between just 2 factors).
-4. classic tests won't allow you to test simple effects via contrasts, e.g.: "Visit: 3, Arm: Treatment | Male vs Female effect" vs. "Visit 3, Arm: Control | Male vs Female effect". **For the model-based testing it's a piece of cake**.
-5. you may simply NOT KNOW which test to use! Believe me or not, there are 850+ (EIGHT HUNDRED FIFTY!) statistical tests and counting. A colleague of mine has been counting them for years (with my little support). With a model - you don't care about all these "version", just provide the formula, set some parameters and test the hypotheses you need. Need a trest for trend? Just user ordinal factor for your time variable.
-6. and you will obtain standard errors and confidence intervals for these comparisons!
-7. want to test some hypotheses jointly? Forget with classic tests!
-8. want to effectively adjust for multiple testing using parametric exact method employing the estimated effects and covariaces through the multivariate t distribution ("MVT")? This is far better than Bonferroni :-) But forget this flexibility when using plain tests!
+1. Ordinary tests won't allow you to control for covariates. Goodbye more advanced analyses. Models will do it naturally (born for that).
+2. Most classic non-parametric tests cannot handle more complex m x n-way designs. Want to test some outcome across multiple groups rendered by `sex * visit * treatment_arm`? Forget! You will likely need to run multiple simple tests and they won't be able to detect inter-variable relationships. 
+3. Most of the classic tests won't be able to test interactions between multiple factors (a few modern ones, like ATS (ANOVA-Type Statistic) or WTS (Wald-Type Statistic) can do this, but only in a limited scope (1-level interaction between just 2 factors).
+4. Classic tests won't allow you to test and compare simple effects via contrasts, e.g.: "Visit: 3, Arm: Treatment | Male vs Female effect" vs. "Visit 3, Arm: Control | Male vs Female effect". **For the model-based testing it's a piece of cake**.
+5. You may simply NOT KNOW which test to use! Believe me or not, there are 850+ (EIGHT HUNDRED FIFTY!) statistical tests and counting. A colleague of mine has been counting them for years (with my little support). With a model - you don't care about all these "version", just provide the formula, set some parameters and test the hypotheses you need. Need a trest for trend? Just user ordinal factor for your time variable.
+6. You will obtain standard errors and confidence intervals for these comparisons.
+7. Want to test some hypotheses jointly? Model-based approach followed by Wald's testing (sometimes also LRT) will do the job.
+8. Want to effectively adjust for multiple testing using parametric exact method employing the estimated effects and covariace\s through the multivariate t distribution ("MVT")? This is far better than Bonferroni :-) But forget this flexibility when using plain tests!
+9. Need to run type-2 or type-3 AN(C)OVA-type analysis for binary data? Or counts? Or anything else? Use appropriate model capable of handling such data and run the necessary testing on the top this model! Depending on what kind of model you use and what link transformation was used, the interpretation will be more complex, but - at the end of the day - you will have the way to assess the impact of your predictors on the response.
+10. The assumptions for AN(C)OVA on your data fail? As above - fit appropriate model addressing these issues and follow it with approprite testing procedure!
 
 Fair enough?
+
+### A longer by-the-way about the ANOVA/ANCOVA-like analysis
+
+The AN(C)OVA you learned from textbooks is a special kind of a much more general procedure: _the assessment of main and interaction effects of a model containing categorical predictor variables_. This can be done in two ways:
+1. by joint testing of the model coefficients (Wald's approach)
+2. by comparing nested models (Wilks's Likelihood Ratio testing), one of which has the predictor of interest and the other does not. This actually assesses the reduction in residual variance between the models. In the Generalized Linear Model the deviance is assessed instead.
+
+For the general linear model (under the hood of the "textbook AN(C)OVA" and t-test) the two approaches are equivalent. The whole procedure reduces to just comparing means across the groups rendered by the levels of your categorical predictors (adjusted for numerical covariates, if present) through appropriate contrasts (functions of means). If you test contrasts related to a certain predictor jointly, you obtain the "global" test for the main effect of this predictor. It enhances also to interactions. And that's all. Exactly the same way you can obtain main and interaction effects of any model you want - only circumstances may differ (e.g. LRT is not available for non-likelihood models, so you need to stick with Wald's).
+
+Or differently. Let's consider a simple model with just one 3-level categorical predictor variable. You can test the impact of this variable in 2 ways:
+- the estimated model coefficients are shifts (differences) between the corresponding group means and the intercept-related mean, so you can test theset coefficiets jointly for the effect of the whole variable. That's the Wald's approach.
+- if the variable of interest has statistically significant impact on response (means), then removing it from the model will worsen it (now "throwing" everything to theoveral mean - the intercept), so the residual variance will increase. You can test this change in variance. This is the :omnibus" F-test you likely know from the ANOVA textbooks. (for the GLM you will also notice Chi2 test, which is a limiting distribution for F, when the denominator degrees of freedom are unknown or difficult to infer and assumed to be infinite; This is exactly like approximating the t-test with known degrees of freedom with z-test).
+- you can also check the fits by comparing the model likelihoods, through the likelihood ratio. If different from 1, then it means that removing the variable of interest worsened the fit. That's the Wilk's LRT aproach.
 
 ## What will you present in this repository?
 
