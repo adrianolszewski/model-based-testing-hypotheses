@@ -1,9 +1,13 @@
 # Introduction
 Testing hypotheses through statistical models opens a universe of new possibilities. Learn how to improve your daily work with this approach.
 
-It's not a new idea. In my old books (~2010) in statistics ANOVA and t-test were mentioned as special cases of the general linear model. That was the first time I realized that every parametric test (and numerous non-parametric ones) are inferential procedures **applied on a top** of various models. Then it turned out, that also many non-parametric tests can be accurately replicated with "classic" parametric or semi-parametric models!
+It's not a new idea. In my old Polish books (~2007-2012) in statistics ANOVA and t-test were mentioned as special cases of the general linear model. That was the first time I realized that every parametric test (and numerous non-parametric ones) are inferential procedures **applied on a top** of various models. Later I found this approach in other books too.
 
-Sometimes the relationship is easy to find (like ANOVA vs. assessment of the main and interaction effects of the general linear model, or reduction of the residual variance when comparing nested models), and sometimes it's not (like Wald's z-test for proportions or Breslow-Day test and the logistic regression. Sometimes the facts connecting non-paramertic tests and parametric models are really surprising and breathtaking (like the Mann-Whitney and Ordinal Logistic Regression)!
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/9c98927a-0624-46d4-8e85-eecb11bd3f21)
+
+**Then it turned out, that also many non-parametric tests can be accurately replicated with "classic" parametric or semi-parametric models!**
+
+Sometimes the relationship is easy to find (like ANOVA vs. assessment of the main and interaction effects of the general linear model = reduction of the residual variance when comparing nested models), and sometimes it's not that direct (like Wald's z-test for proportions or Breslow-Day test and the logistic regression). Sometimes the properties connecting non-paramertic tests and parametric models are really surprising and breathtaking (like the Mann-Whitney and Ordinal Logistic Regression)!
 
 You can find excellent resources on the Internet, like [Common statistical tests are linear models (or: how to teach stats)](https://lindeloev.github.io/tests-as-linear/), but I wanted to summarize my own experience with model-based testing, used in my work (biostatistics in clinical trials) on daily basis.
 
