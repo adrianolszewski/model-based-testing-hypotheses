@@ -226,7 +226,9 @@ Now, if removing this predictor from the model (effectively - if the parameter i
 If you operate under H0, then regardless of its shape (ideally quadratic, but here let's agree on a concave one, with single maximum):
 - **Wald's:** the difference between the true value of the parameter (here: the difference between groups) = 0 and the estimated parameter p, measured on the horizontal axis (parameter space), approaches 0.
 - **Wilk's LRT** the difference on the vertical axis (log-likelihoods) between both models approaches 0 (so the likelihood ratio approaches 1) - no gain.
-- **Rao's score** the slope of the tangential line (Rao's score) approaches zero as well. / Which reflects the fact that under H0 the derivative (score) of the log-likelihood function with respect to the parameter should --> zero. /
+- **Rao's score** the slope of the tangential line (Rao's score) approaches zero as well. / Which reflects the fact that under H0 the derivative (score) of the log-likelihood function with respect to the parameter should --> zero.
+
+The word "approaches 0" means, that we operate in its neighbourhood, where (in case of concave shape) changes in all 3 measures are relatively small and close to each other (they follow each other). This explains why mostly you will obtain similar results under the nul hypothesis, and why they start diverging as you go away from this "safe area" towards the alternative hypothesis.
 
 This is a simple graphical explanation, but formal proofs can be found in many places, e.g.: [Score Statistics for Current Status Data:
 Comparisons with Likelihood Ratio and Wald Statistics](https://sites.stat.washington.edu/jaw/JAW-papers/NR/jaw-banerjee-05IJB.pdf) or [Mathematical Statistics — Rigorous Derivations and Analysis of the Wald Test, Score Test, and Likelihood Ratio Test](https://towardsdatascience.com/mathematical-statistics-a-rigorous-derivation-and-analysis-of-the-wald-test-score-test-and-6262bed53c55)
@@ -238,7 +240,7 @@ But remember that normality never holds exactly, as it's only an idealized, theo
 
 / BTW: That's why you saw, many times, the "t" (if degrees of freedom are easy/possible to derive) or "z" (otherwise; at infinite degrees of freedom) statistic reported for coefficients of most regression models and when testing contrasts. That's because the sampling distribution for these parameters is theoretically assumed to be normal (via Central Limit Theorem). But it's not always the case. For less "obvious" models, like quantile regression, such approximation may be incorrect (or limited only to "good cases"), and then resampling techniques are typically employed (e.g. bootstrap, jacknife). /
 
-**But the more the log-likehood curve deviates from the quadratic shape, the more they will diverge from each other.**
+**But the more the log-likehood curve deviates from the quadratic shape, the more they will diverge from each other even under the null hypothsesis!**
 
 And the shape may diverge from the desired one also by using common transformations, e.g. from logit scale to probabiltiy scale, when employing the logistic regression family.
 
@@ -247,11 +249,9 @@ The mentioned, excellent article [Wald vs likelihood ratio test](https://thestat
 
 
 **But what will happen under alternative hypothesis?**
-Briefly - the 3 measures will increase in a more or less consistent manner, but of course they will diverge from each other.
+Briefly - the 3 measures will increase. Whether this will happen in a more or less consistent manner depends on the log-likelihood curve. You may observe a good agreement in the beginning (near to H0) and then quick divergence.
 
-How much - depends on how much we move away from the _zero-difference_ area n the log-likelihood curve and how close is the parameter sampling distribution to the normal one, resulting also in the shape of the log-likelihood curve. You may observe good agreement in the beginning and then quickly (or just wildly) increasing divergence.
-
-**The good news is that the discrepancies will rather occur at small p-values, typically below common levels of statistical significance level, so for us, users of the test, the differences may be barely noticeable**, if we are lucky. But reat the next section...
+**The good news is that the discrepancies will rather occur at small p-values, typically below common levels of statistical significance level, so for us, users of the test, the differences may be barely noticeable**, if we are lucky. But read the next section...
 
 Let me show you an example. We will compare data sampled from two normal distributions in four settings:
 1. Both groups are sampled from the same N(50, 20). We operate under the null hypothesis. Practically full overlap of empirical distributions.
@@ -310,6 +310,24 @@ Overlap |       95% CI
 And now let's have a look at the p-values obtained from the ordinal logistic regression (as if we applied the Mann-Whitney test to normally distributed data) by
 employing the three metehods:
 
+```r
+compare_3methods_distr(n_group = 50, samples=50,
+                       distr_pair_spec = list("N(50,20) vs. N(50,20)" =
+                                                c(arm_1_distr = "rnorm(n_group, mean=50, sd=20)",
+                                                  arm_2_distr = "rnorm(n_group, mean=50, sd=20)"),
+                                              "N(50,20) vs. N(35,20)" =
+                                                c(arm_1_distr = "rnorm(n_group, mean=50, sd=20)",
+                                                  arm_2_distr = "rnorm(n_group, mean=35, sd=20)",
+                                                  log = "TRUE"),
+                                              "N(50,10) vs. N(35,10)" =
+                                                c(arm_1_distr = "rnorm(n_group, mean=50, sd=10)",
+                                                  arm_2_distr = "rnorm(n_group, mean=35, sd=10)",
+                                                  log = "TRUE"),
+                                              "N(50,5) vs. N(35,5)" =
+                                                c(arm_1_distr = "rnorm(n_group, mean=50, sd=5)",
+                                                  arm_2_distr = "rnorm(n_group, mean=35, sd=5)",
+                                                  log = "TRUE")))
+```
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/8c684e6e-cb79-4c79-80db-0579044a36e6)
 
 As expected, the methods gave very similar p-values (look especially at the 1st, top-left plot for H0). Even, if differences occurred, they were too small to be observed. That's because the p-values spanned several orders of magnitude! And we could end here: the situation is perfect!
@@ -324,7 +342,29 @@ That's simple - because we more farther and farther from H0. With the convex cur
 
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/62977972-f69e-49ba-9431-d331edfda0f4)
 
-By this occasion, let's have a lookg how the p-values differs with respect to the Mann-Whitney (-Wilcoxon) test:
+By this occasion, let's have a lookg how the p-values differ with respect to the Mann-Whitney (-Wilcoxon) test.
+It's interesting to observe the opposite directions in which the p-values diverge.
+
+/ PS: Remember, that the way the p-value is calculated in Wilcoxon depends on the implementation! There can be a normal approximation, exact method, ties may be unhandled or handled via different methods (Wilcoxon, Pratt). /
+
+```r
+compare_3methods_distr_model_vs_test(n_group = 50, samples=50,
+                        distr_pair_spec = list("N(50,20) vs. N(50,20)" =
+                                                 c(arm_1_distr = "rnorm(n_group, mean=50, sd=20)",
+                                                   arm_2_distr = "rnorm(n_group, mean=50, sd=20)"),
+                                               "N(50,20) vs. N(35,20)" =
+                                                 c(arm_1_distr = "rnorm(n_group, mean=50, sd=20)",
+                                                   arm_2_distr = "rnorm(n_group, mean=35, sd=20)",
+                                                   log = "TRUE"),
+                                               "N(50,10) vs. N(35,10)" =
+                                                 c(arm_1_distr = "rnorm(n_group, mean=50, sd=10)",
+                                                   arm_2_distr = "rnorm(n_group, mean=35, sd=10)",
+                                                   log = "TRUE"),
+                                               "N(50,5) vs. N(35,5)" =
+                                                 c(arm_1_distr = "rnorm(n_group, mean=50, sd=5)",
+                                                   arm_2_distr = "rnorm(n_group, mean=35, sd=5)",
+                                                   log = "TRUE")))
+```
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/51718316-4a2e-41d6-a951-249617404a23)
 
 ## Even worse! You just said that different method of testing can yield OPPOSITE results!
