@@ -3,7 +3,7 @@ Testing hypotheses through statistical models opens a universe of new possibilit
 
 It's not a new idea. In my old Polish books (~2007-2012) in statistics ANOVA and t-test were mentioned as special cases of the general linear model. That was the first time I realized that every parametric test (and numerous non-parametric ones) are inferential procedures **applied on a top** of various models. Later I found this approach in other books too.
 
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/9c98927a-0624-46d4-8e85-eecb11bd3f21)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/a79a60fa-efbb-47ef-a396-20c94aad553a)
 
 **Then it turned out, that also many non-parametric tests can be accurately replicated with "classic" parametric or semi-parametric models!**
 
