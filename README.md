@@ -251,7 +251,7 @@ Briefly - the 3 measures will increase in a more or less consistent manner, but 
 
 How much - depends on how much we move away from the _zero-difference_ area n the log-likelihood curve and how close is the parameter sampling distribution to the normal one, resulting also in the shape of the log-likelihood curve. You may observe good agreement in the beginning and then quickly (or just wildly) increasing divergence.
 
-**The good news is that the discrepancies will occur at really small p-values, much below any common levels of statistical significance level, so for us, users of the test, the differences will be barely noticeable!**
+**The good news is that the discrepancies will rather occur at small p-values, typically below common levels of statistical significance level, so for us, users of the test, the differences may be barely noticeable**, if we are lucky. But reat the next section...
 
 Let me show you an example. We will compare data sampled from two normal distributions in four settings:
 1. Both groups are sampled from the same N(50, 20). We operate under the null hypothesis. Practically full overlap of empirical distributions.
@@ -327,18 +327,20 @@ That's simple - because we more farther and farther from H0. With the convex cur
 By this occasion, let's have a lookg how the p-values differs with respect to the Mann-Whitney (-Wilcoxon) test:
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/51718316-4a2e-41d6-a951-249617404a23)
 
-
 ## Even worse! You just said that different method of testing can yield OPPOSITE results!
 
-Yes, Wald's and LRT may yield opposite results, e.g. Wald's p-value = 0.8 vs. LRT p-value < 0.001.
+Well, yes, Wald's and LRT **may yield opposite results**, e.g. Wald's p-value = 0.8 vs. LRT p-value < 0.001.
 
-But that doesn't happen very often, in "**edge cases**". That's why doing statistical analysis is not just a brainless "click-and-go" task!
+But that doesn't happen very often, in "**edge cases**". The problem is that you may NOT know when it's an "edge case".
+That's why doing statistical analysis is not just a brainless "click-and-go" task!
+
+If only you suspect something is wrong, I mean - that the results of some analysis does not reflect what you observe in data, validate it with another analysis.
 
 This is summarized in the article I already cited ([Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)): "Further, a situation in which the Wald approach completely fails while the likelihood ratio approach is still (often) reasonable is when testing whether a parameter lies on the boundary of its parameter space." 
 
 If you anticipate that something bad may happen, VALIDATE your calculations using a different method. It doesn't have to bring SAME results (it's a different method) but at least you will be able to assess if they are approximately consistent.
 
-If, for instance, you run the ordinal logistic regression over Likert data and obtain Wald's p-value = 0.3 and LRT p-value = 0.0003, then you can also simplify it for a while and check with the Mann-Whitney (-Wilcoxon) test or even run the OLS with ranked response (it's a very good method!).
+If, for instance, you run the ordinal logistic regression over Likert data and obtain Wald's p-value = 0.3 and LRT p-value = 0.0003, then you can also simplify it for a while and check with the Mann-Whitney (-Wilcoxon) test or even run the OLS with ranked response (it's a very good approximation).
 
 **And always - always start with the EDA (exploratory data analysis), plot your data, know it. Otherwise you won't even suspect what could go wrong.**
 
@@ -438,6 +440,31 @@ So, as I said - even if a model *actually converges*, the estimate may be unreli
 3. Having multiple options, always choose the method that alerts you that something went wrong rather than method that silently pretends nothing wrong happened and happily continues. **It's always better to have NO result rather than having WRONG result.**
 
 **You. Have. Been. Warned.**
+
+## Any words of comfort...?
+
+Yes :)
+
+First, for several tests, to reproduce it closely with a model, you just need one approach and don't have to overthink the problem.
+A few examples of perfect agreement you can find in this gist (temporarily; I will move it to this repo soon): https://github.com/adrianolszewski/Logistic-regression-is-regression/blob/main/Testing%20hypotheses%20about%20proportions%20using%20logistic%20regression.md
+
+If you use R:
+- the prop.test() (z test with pooled standard errors) will exactly match Rao ANOVA over logistic regression
+- the classic z test for 2 proportions with non-pooled standard errors will exactly match Wald's test over AME over logistic regression
+- Cochrane-Mantel-Haenszel will exactly match Wald's test applied to the conditional logistic regression
+- McNemar and Cochrane Q will be quite close with GEE-estimated logistic regression (mostly with exchangeable covariance) tested with Wald's
+- Breslow-Day will agree with Rao ANOVA over the logistic regression.
+
+And then you don't have to to split hairs. Remember also, that as long, as your model contains multiple categorical predictors and numerical covariates, you cannot compare it with most classic tests (limited to just 1 categorical predictor).
+
+## Conclusions:
+
+At the end of the day, you will need to agree on some trade-offs:
+1. availability of procedures in your statistical tool.
+2. goal of the analysis: analysis of contrasts for simple effects of interest will usually need Wald's testing (remember to keep appropriate scale!). Type-2 and Type-3 ANOVA over the general (OLS-fit regression) and generalized (GLM) models will be done via Wilks' LRT.
+3. stastistical limitations: if you need to obtain Type-2 or Type-3 ANOVA-like analysis of the main and interaction effects for GEE-estimated models or quantile regression, you will end up with Wald's approach (maybe with some bootstrap).
+
+There is no one-size-fits-all solution in statistics.
 
 ----
 ## Interpretation
