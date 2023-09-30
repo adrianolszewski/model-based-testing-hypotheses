@@ -1,11 +1,15 @@
 # Introduction
 Testing hypotheses through statistical models opens a universe of new possibilities. Learn how to improve your daily work with this approach.
 
-[In this document](https://github.com/adrianolszewski/Logistic-regression-is-regression/blob/main/Testing%20hypotheses%20about%20proportions%20using%20logistic%20regression.md) I showed how the model-based approach, namely
-the logistic regression (with extensions) can replicate numerous classic tests of proportions: 
-Wald's and Rao z test for 2+ proportions (+ ANOVA-like), Cochran-Mantel-Haenszel (CMH), Breslow-Day, Cochran-Armitage, McNemar, Cochran Q, Friedman, Mann-Whitney (-Wilcoxon), Kruskal-Wallis.
+It's not a new idea. In my old books (~2010) in statistics ANOVA and t-test were mentioned as special cases of the general linear model. That was the first time I realized that every parametric test (and numerous non-parametric ones) are inferential procedures **applied on a top** of various models. Sometimes the relationship is easy to find (like ANOVA vs. assessment of the main (and interaction) effects of the general linear model, or reduction of the residual variance in during comparison of nested models), and sometimes it's not (like Wald's z-test for proportions or Breslow-Day test and the logistic regression. You can also find excellent resources on the Internet, like [Common statistical tests are linear models (or: how to teach stats)] (https://lindeloev.github.io/tests-as-linear/).
 
-But this extends much more! General and Generalized Linear Models fit via Generalized Least Square, Generalized Estimating Equations and through Generalized Linear Mixed Models, (Mixed-effect) Quantile regression, Cox proportional-hazard regression, Accelerated Failure Time, Tobit regression, Simplex regression and dozens of others models will be at your disposal to test hypotheses in a way you probably were never told.
+I wanted to and summarize my own experience with model-based testing, used in my work (biostatistics in clinical trials) on daily basis.
+
+So far I examined Wald's and Rao z test for 2+ proportions (+ ANOVA-like), Cochran-Mantel-Haenszel (CMH), Breslow-Day, Cochran-Armitage, McNemar, Cochran Q, Friedman, Mann-Whitney (-Wilcoxon), Kruskal-Wallis replicated with the logistic regression. But this extends much more! General and Generalized Linear Models fit via Generalized Least Square, Generalized Estimating Equations and through Generalized Linear Mixed Models, (Mixed-effect) Quantile regression, Cox proportional-hazard regression, Accelerated Failure Time, Tobit regression, Simplex regression and dozens of others models will be at your disposal to test hypotheses in a way you probably were never told.
+
+This document is incomplete and dynamic. I will update it over time. 
+
+You will find descriptions of subsequent tests in the [Test subdirectory](https://github.com/adrianolszewski/model-based-testing-hypotheses/tree/main/Tests). So far I started describing the [Mann-Whitney-Wilcoxon vs. Ordinal Logistic Regression](https://github.com/adrianolszewski/model-based-testing-hypotheses/blob/main/Tests/Mann-Whitney%20(-Wilcoxon).md). Still a lot is to be done: https://github.com/adrianolszewski/model-based-testing-hypotheses/blob/main/Tests/Various%20tests%20to%20describe%20one%20by%20one.md
 
 ## Just one question: WHY?
 Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
