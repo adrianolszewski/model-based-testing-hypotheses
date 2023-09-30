@@ -255,7 +255,9 @@ But remember that normality never holds exactly, as it's only an idealized, theo
 And the shape may diverge from the desired one also by using common transformations, e.g. from logit scale to probabiltiy scale, when employing the logistic regression family.
 
 The mentioned, excellent article [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/) by Prof. Jonathan Bartlett shows additional examples that speak louder than words!
+
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4b89d9d8-c571-4ddf-a137-8a3f1f8889e0)
+(cited with Prof. Bartlett's permission).
 
 **But what will happen under alternative hypothesis?**
 Briefly - the 3 measures will increase. Whether this will happen in a more or less consistent manner depends on the log-likelihood curve. You may observe a good agreement in the beginning (near to H0) and then quick divergence.
