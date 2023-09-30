@@ -11,63 +11,7 @@ But this extends much more! General and Generalized Linear Models fit via Genera
 Well, classic tests are "simple" and fast. But simple method is for simple scenarios.
 A more advanced inferential analysis often goes FAR beyond that these tests can do.
 
-For our considerations it's important to say, that **by applying Likelihood Ratio, Rao's, or Wald's testing procedure to an appropriate model you will be (mostly) able to reproduce what the classic "plain" tests do (and much more!)**.
-
-/ PS: Oh my, so many related topics!
-I'm not going to write a textbook of statistical methods, so if you're curious about the Wilk's Likelihood Ratio (LR), Wald's and Rao testing, google these terms.
-You can start from:
-- [Likelihood-ratio test or z-test?](https://stats.stackexchange.com/questions/48206/likelihood-ratio-test-or-z-test)
-- [Mathematical Statistics — Rigorous Derivations and Analysis of the Wald Test, Score Test, and Likelihood Ratio Test. Derivations of the Classic Trinity of Inferential Tests with Full Computational Simulation](https://towardsdatascience.com/mathematical-statistics-a-rigorous-derivation-and-analysis-of-the-wald-test-score-test-and-6262bed53c55)
-- [FAQ: How are the likelihood ratio, Wald, and Lagrange multiplier (score) tests different and/or similar?](https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-are-the-likelihood-ratio-wald-and-lagrange-multiplier-score-tests-different-andor-similar/)
-- (warning, math!) [Handouts for Lecture Stat 461-561 Wald, Rao and Likelihood Ratio Tests](https://www.cs.ubc.ca/~arnaud/stat461/lecture_stat461_WaldRaoLRtests_handouts_2008.pdf)
-- (warning, math!) [STAT 713 MATHEMATICAL STATISTICS II - Lecture Notes](https://people.stat.sc.edu/Tebbs/stat713/s18notes.pdf)
-
-**Take home messages:**
-1. In our considerations we'll primarily employ two statistical methods: Wald's test and Wilk's Likelihood Ratio Test (LRT). We'll closely examine how these methods behave in various scenarios.
-
-2. For you now it's important to know, that asymptotically these methods yield equivalent results. Asymptotically means "at infinite sample size". In real-world scenarios they will always differ, but unless you hit the "edge case", they will be rather consistent.
-  
-3. But the MAY also diverge **noticeably** in "edge cases", where the log-likelihood curve of a model parameter in the parameter space deviates from a parabolic shape. If you read either of the 2 first links, you will know what I mean. We will observe it...
-
-4. Wald's test is extremely useful for testing hypotheses in both
-   a. covariate-adjusted planned comparisons via contrasts - **that's the ESSENCE of work in experimental research!**
-   b. AN[C]OVA-type joint testing of model coefficients assessing the main and interaction effects (like the classic ANOVA does)
-
-5. Wald's is faster than LR as it needs only a single model fitting.
-  
-6. LRT is often considered more conservative than Wald's test. It's less likely to reject a null hypothesis when it's true (i.e., it has a lower Type I error rate). This conservativeness can be advantageous when you want to avoid making false-positive errors, such as in clinical trials or other critical applications. In contrast, Wald's test can sometimes be more liberal, leading to a higher likelihood of false positives. It may not perform well when sample sizes are small or when the distribution of the parameter estimates deviates from normality. But often Wald's is the best we can do.
-   
-7. Wald's is also the ONLY available method in non-likelihood models, like GEE estimation or quantile regression. Depiste it weaknesses, it gains importance!
-  
-8. But sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? :)
-
-9. Likelihood Ratio is employed through model comparisons: one model with the term we want to assess and one model without it (you can also compare other settings, like covariance structures) and is often found as **more accurrate** than Wald's.
-
-10. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in covarite-adjusted planned comparisons.
-
-11. LRT involves fitting two models, doubling the time needed compared to Wald's test. This additional computational cost can be a consideration. Sometimes it really MAKES an inssue, especially if you need to test several predictor variables, so you need to compare more and more nested models!
-
-12. Wald's approach takes full advantage of the estimated parameter and covariance matrix, which means that "sky is the limit" when testing.
-    
-13. To conclude: for simple testing 2+ groups (single n-level categorical predictor) the LRT is usually preferred. For planned and exploratory assessment of various contrasts - Wald's is often the method of choice. But there is no univerally good scenario.
-
-14. "_When the sample size is small to moderate, the Wald test is the least reliable of the three tests. We should not trust it for such a small n as in this example (n = 10). Likelihood-ratio inference and score-test based inference are better in terms of actual error probabilities coming close to matching nominal levels. A marked divergence in the values of the three statistics indicates that the distribution of the ML estimator may be far from normality. In that case, small-sample methods are more appropriate than large-sample methods._ (Agresti, A. (2007). An introduction to categorical data analysis (2nd edition). John Wiley & Sons.)"
-
-15. **Now, a mandatory reading!** [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/) by Prof. Jonathan Bartlett, which perfectly summarized our above considerations: "_In conclusion, although the likelihood ratio approach has clear statistical advantages, computationally the Wald interval/test is far easier. In practice, provided the sample size is not too small, and the Wald intervals are constructed on an appropriate scale, they will usually be reasonable (hence their use in statistical software packages). In small samples however the likelihood ratio approach may be preferred._"
-
-16. **Wald's inference is not transformation invariant**. If you calculate Wald's p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!).
-Just think about it - Wald's assumes normally distributed data, which briefly means **SYMMETRIC**. 0-1 truncated data will never be so, that's why you may easily obtain negative or >1 bounds of the confidence interval.
-
-See?
-```r
-> binom::binom.asymp(x=1, n=5)
-      method x n mean     lower    upper
-1 asymptotic 1 5  0.2 -0.150609 0.550609   # -0.15 ?
-> binom::binom.asymp(x=4, n=5)
-      method x n mean    lower    upper
-1 asymptotic 4 5  0.8 0.449391 1.150609    # 1.15?
-```
-/
+For our considerations it's important to say, that **by applying Likelihood Ratio, Rao's, or Wald's testing procedure to an appropriate model you will be (mostly) able to reproduce what the classic "plain" tests do (and much more!)** (find below a section dedicated to these 3 methods).
 
 This way, by employing appropriate model followed by the metioned testing procedures, you can obtain perform complex planned and exploratory hypothesis testing, perform  Type-II and Type-III ANOVA-like analysis over Poisson or logistic regression... Actually, you can plug-in any single model.
 
@@ -205,13 +149,73 @@ And sometimes it does not work at all and then you cannot proceed with this mode
 Should work and be consistent with Mann-Whitney (-Wilcoxon).
 
 ----
+## Wald's, Wilks' Likelihood Ratio, and Rao's testing. Why should I care?
+
+Oh my, so many related topics! But nobody's said it will be a piece of cake.
+
+I'm not going to write a textbook of statistical methods, so if you're curious about the Wilk's Likelihood Ratio (LR), Wald's and Rao testing, google these terms.
+You can start from:
+- [Likelihood-ratio test or z-test?](https://stats.stackexchange.com/questions/48206/likelihood-ratio-test-or-z-test)
+- [FAQ: How are the likelihood ratio, Wald, and Lagrange multiplier (score) tests different and/or similar?](https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-are-the-likelihood-ratio-wald-and-lagrange-multiplier-score-tests-different-andor-similar/)
+- [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)
+
+Cannot live wihout a solid dose of math? Look there:
+- [Mathematical Statistics — Rigorous Derivations and Analysis of the Wald Test, Score Test, and Likelihood Ratio Test. Derivations of the Classic Trinity of Inferential Tests with Full Computational Simulation](https://towardsdatascience.com/mathematical-statistics-a-rigorous-derivation-and-analysis-of-the-wald-test-score-test-and-6262bed53c55)
+- [Handouts for Lecture Stat 461-561 Wald, Rao and Likelihood Ratio Tests](https://www.cs.ubc.ca/~arnaud/stat461/lecture_stat461_WaldRaoLRtests_handouts_2008.pdf)
+- [STAT 713 MATHEMATICAL STATISTICS II - Lecture Notes](https://people.stat.sc.edu/Tebbs/stat713/s18notes.pdf)
+
+Briefly, if you imagine the IDEALIZED log-likelihood curve for some model parameter:
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/d85738a7-f5a8-40d4-9463-5433c3f386d7)
+
+then 
+- **Wald's** is about the difference between the true value of some parameter p0 (e.g. the difference between groups) and the parameter p_hat estimated from data, placed on the horizontal axis (called the parameter space).
+- **Wilk's LRT** is about the difference between two log-likelihoods (or ratio of two likelihoods, thus the name: "likelihood ratio testing") of a "full" model with the parameter of interest and a reduced model without it. This difference is placed on the vertical axis
+- **Rao's score** is about the slope of the tangential line (Rao's score) to the log-likelihood curve.
+
+OK, now let's make some notes:
+
+1. Wald's, Wilks' and Rao's approach are just different ways to test hypotheses about some model parameter of interest. They offer 3 different ways to answer the question _whether constraining parameters of interest to zero (leaving out corresponding predictor variables from the model) reduces the fit of the model?_
+
+2. In our considerations we'll primarily employ two statistical methods: Wald's test and Wilk's Likelihood Ratio Test (LRT). We'll closely examine how these methods behave in various scenarios.
+
+3. Under the null hypothesis they provide asymptotically equivalent results. Asymptotically means "at infinite sample size". In real-world scenarios they will always differ, but unless you hit the "edge case", they will be rather consistent (at the end of the day, they assess a single thing).
+  
+4. They may **noticeably** diverge in "edge cases", where the log-likelihood curve of a model parameter in the parameter space deviates from a parabolic shape. If you read either of the 3 first links, you will know what I mean.
+
+5. Wald's test is extremely useful for testing hypotheses in both
+   a. covariate-adjusted planned comparisons via contrasts - **that's the ESSENCE of work in experimental research!**
+   b. AN[C]OVA-type joint testing of model coefficients assessing the main and interaction effects (like the classic ANOVA does), especially in non-likelihood models, where it's the only option. Wald's is also the ONLY available method in non-likelihood models, like GEE estimation or quantile regression, so it's important!
+
+6. Wald's is faster than LRT as it needs only a single model fitting. On the contrary, LRT needs at least 2 fitting to compare 2 nested models: with and without the term you want to assess (you can also compare other settings, like covariance structures). With the increasing number of variables to assess, the number of compared models increases. This becomes especially important if you make inference under the multiple imputation condition (MICE) process, where some analysis is repeated on each imputed dataset and then the results are pooled. In this case the amount of necessary time may be not acceptable.
+  
+7. LRT is often considered more conservative than Wald's approach. Some say it's also more precise - but what does it actually mean? It's less likely to reject a null hypothesis when it's true (i.e., it has a lower Type I error rate). This conservativeness can be advantageous when you want to avoid making false-positive errors, such as in clinical trials or other critical applications. In contrast, Wald's test can sometimes be more liberal, leading to a higher likelihood of false positives.
+  
+8. Wald's may not perform well when sample sizes are small or when the distribution of the parameter estimates deviates from normality. LRT is robust to the non-normality of the sampling distribution of the parameter of interest.
+   
+9. Sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? And sometimes the LRT is not available, as mentioned above. Happy those, who have both at their disposal.
+
+10. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in covarite-adjusted planned comparisons, where we cannot do it just by specifying nested models. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, which means that "sky is the limit" when testing.
+    
+11. "_When the sample size is small to moderate, the Wald test is the least reliable of the three tests. We should not trust it for such a small n as in this example (n = 10). Likelihood-ratio inference and score-test based inference are better in terms of actual error probabilities coming close to matching nominal levels. A marked divergence in the values of the three statistics indicates that the distribution of the ML estimator may be far from normality. In that case, small-sample methods are more appropriate than large-sample methods._ (Agresti, A. (2007). An introduction to categorical data analysis (2nd edition). John Wiley & Sons.)"
+
+12. "_In conclusion, although the likelihood ratio approach has clear statistical advantages, computationally the Wald interval/test is far easier. In practice, provided the sample size is not too small, and the Wald intervals are constructed on an appropriate scale, they will usually be reasonable (hence their use in statistical software packages). In small samples however the likelihood ratio approach may be preferred._" [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)
+
+13. **Wald's inference is not transformation invariant**. If you calculate Wald's p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!).
+Just think about it - Wald's assumes normally distributed data, which briefly means **SYMMETRIC**. 0-1 truncated data will never be so, that's why you may easily obtain negative or >1 bounds of the confidence interval.
+
+See?
+```r
+> binom::binom.asymp(x=1, n=5)
+      method x n mean     lower    upper
+1 asymptotic 1 5  0.2 -0.150609 0.550609   # -0.15 ?
+> binom::binom.asymp(x=4, n=5)
+      method x n mean    lower    upper
+1 asymptotic 4 5  0.8 0.449391 1.150609    # 1.15?
+```
 
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
 
-**Yes. But the differences will happen rather under the ALTERNATIVE hypothesis and mostly at very low p-values.**
-
-Recall that Wald's, Wilks' and Rao's method are just different ways to answer the question _whether constraining parameters of interest to zero (leaving out corresponding predictor variables from the model) reduces the fit of the model?_
-
+**Yes. But serious differences mostly happens under the ALTERNATIVE hypothesis and at low p-values.**
 Let's consider a 2-sample test comparing means (or any other quantity of interest).
 A corresponding (general linear with treatment contrast coding) model will have just the response (dependent) variable and a single, 2-level categorical predictor variable which levels form the groups we want to compare: `response ~ group`.
 
@@ -224,9 +228,9 @@ Now, if removing this predictor from the model (effectively - if the parameter i
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/8c3bd8ed-df10-4da1-bfde-d96574c24da5)
 
 If you operate under H0, then regardless of its shape (ideally quadratic, but here let's agree on a concave one, with single maximum):
-- **Wald's:** the difference between the true value of the parameter (here: the difference between groups) = 0 and the estimated parameter p, measured on the horizontal axis (parameter space), approaches 0.
-- **Wilk's LRT** the difference on the vertical axis (log-likelihoods) between both models approaches 0 (so the likelihood ratio approaches 1) - no gain.
-- **Rao's score** the slope of the tangential line (Rao's score) approaches zero as well. / Which reflects the fact that under H0 the derivative (score) of the log-likelihood function with respect to the parameter should --> zero.
+- **Wald's:** the difference between groups = 0, so the distance in the parameter space approaches 0.
+- **Wilk's LRT** the difference in both log-likelihoods between both models approaches 0 (then the likelihood ratio approaches 1) - no gain.
+- **Rao's score** the slope of the tangential line (Rao's score) approaches zero as well. Which reflects the fact that under H0 the derivative (score) of the log-likelihood function with respect to the parameter should approach zero.
 
 The word "approaches 0" means, that we operate in its neighbourhood, where (in case of concave shape) changes in all 3 measures are relatively small and close to each other (they follow each other). This explains why mostly you will obtain similar results under the nul hypothesis, and why they start diverging as you go away from this "safe area" towards the alternative hypothesis.
 
@@ -246,7 +250,6 @@ And the shape may diverge from the desired one also by using common transformati
 
 The mentioned, excellent article [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/) by Prof. Jonathan Bartlett shows additional examples that speak louder than words!
 ![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/4b89d9d8-c571-4ddf-a137-8a3f1f8889e0)
-
 
 **But what will happen under alternative hypothesis?**
 Briefly - the 3 measures will increase. Whether this will happen in a more or less consistent manner depends on the log-likelihood curve. You may observe a good agreement in the beginning (near to H0) and then quick divergence.
