@@ -2,7 +2,7 @@ Testing hypotheses through statistical models opens a universe of new possibilit
 
 It's not a new idea. In my old Polish books (~2007-2012) in statistics ANOVA and t-test were mentioned as special cases of the general linear model. That was the first time I realized that every parametric test (and numerous non-parametric ones) are inferential procedures **applied on a top** of various models. Later I found this approach in other books too.
 
-<img src="https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/6b7615a8-2f50-43ad-8f6d-7d1699872320" width="916" height="574" style="align:center;"/>
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/bd74461d-f695-434d-b755-f481fadb89ff)
 
 **Then it turned out, that also many non-parametric tests can be accurately replicated with "classic" parametric or semi-parametric models!**
 
@@ -10,7 +10,9 @@ Sometimes the relationship is easy to find (like ANOVA vs. assessment of the mai
 
 You can find excellent resources on the Internet, like [Common statistical tests are linear models (or: how to teach stats)](https://lindeloev.github.io/tests-as-linear/), but I wanted to summarize my own experience with model-based testing, used in my work (biostatistics in clinical trials) on daily basis.
 
-So far I examined Wald's and Rao z test for 2+ proportions (+ ANOVA-like), Cochran-Mantel-Haenszel (CMH), Breslow-Day, Cochran-Armitage, McNemar, Cochran Q, Friedman, Mann-Whitney (-Wilcoxon), Kruskal-Wallis replicated with the logistic regression. But this extends much more! General and Generalized Linear Models fit via Generalized Least Square, Generalized Estimating Equations and through Generalized Linear Mixed Models, (Mixed-effect) Quantile regression, Cox proportional-hazard regression, Accelerated Failure Time, Tobit regression, Simplex regression and dozens of others models will be at your disposal to test hypotheses in a way you probably were never told.
+So far I examined Wald's and Rao z test for 2+ proportions (+ ANOVA-like), Cochran-Mantel-Haenszel (CMH), Breslow-Day, Cochran-Armitage, McNemar, Cochran Q, Friedman, Mann-Whitney (-Wilcoxon), Kruskal-Wallis replicated with the logistic regression.
+
+But this extends much more and beyond just classic testing! General and Generalized Linear Models fit via Generalized Least Square, Generalized Estimating Equations and through Generalized Linear Mixed Models, (Mixed-effect) Quantile regression, Cox proportional-hazard regression, Accelerated Failure Time, Tobit regression, Simplex regression and dozens of others models will be at your disposal to test hypotheses in a way you probably were never told.
 
 This document is incomplete and dynamic. I will update it over time, so stay tuned.
 
@@ -52,6 +54,18 @@ How about the _quantile regression_ (especially combined with random effects) ca
 8. want to effectively adjust for multiple testing using parametric exact method employing the estimated effects and covariaces through the multivariate t distribution ("MVT")? This is far better than Bonferroni :-) But forget this flexibility when using plain tests!
 
 Fair enough?
+
+## What will you present in this repository?
+
+We will do 3 things.
+
+1. We will asesss how well the classic tests can be replicated with models. OK, I hear you: but why, if tests are faster nad rarerly fail? Because sometimes there may be no test that fits your needs in your statistical package.
+
+2. We will extend the classic tests, for example to more than 1 factor with interactions. That's exactly the place where models enter the scene! Want to compare % of succeseses between males and females? Smokers and non-smokers? Check their interactions? In other words - do you want "ANOVA" for the binary response case? OK, that's exactly where we will go.
+
+3. We will run some basic analyses of contrasts by employing severeal models and estimation methods and the awesome emmeans package. So, we will try GLM, GEE-GLM, GLS (MMRM) to compare % of success, counts, ratios, maybe concentrations (via log-linked gamma regression) via contrasts.
+
+That's my plans. But first I need to cover the basic tests.
 
 ## But the model-based testing is SLOW!
 Let's be honest - model-based testing can be (and IS) **SLOWER** than running a plain good-old test, especially if you perform then under multiple imputation approach to missing data (where you repeat the same analysis on each of dozens of imputed datasets and then pool the results.), especially if you also employ the Likelihood Ratio testing (LRT).
@@ -566,4 +580,3 @@ Ideally add "SAS" to your queries, as commercial packages (SAS, Stata, SPSS, NCS
 So you can see with your own eyes, that model-based testing has LOTS of advantages. But sometimes you will need just a simple, classic test that runs FAST. Especially, if you have lots of tests to do under multiple imputation conditions, with lengthy data, and you are approaching a deadline :-)
 
 **So the choice depends really on your needs.  I only want to show you that this is doable and how well it performs.**
-
