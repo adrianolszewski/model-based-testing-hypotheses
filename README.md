@@ -235,6 +235,8 @@ OK, now let's make some notes:
 2. In our considerations we'll primarily employ two statistical methods: Wald's test and Wilk's Likelihood Ratio Test (LRT). We'll closely examine how these methods behave in various scenarios.
 
 3. Under the null hypothesis they provide asymptotically equivalent results. Asymptotically means "at infinite sample size". In real-world scenarios they will always differ, but unless you hit the "edge case", they will be rather consistent (at the end of the day, they assess a single thing).
+
+But still, $p-value_WALD \le p-value_LRT \le p_value_RAO$. Even if you don't notice that.
   
 4. They may **noticeably** diverge in "edge cases", where the log-likelihood curve of a model parameter in the parameter space deviates from a parabolic shape. If you read either of the 3 first links, you will know what I mean.
 
@@ -268,6 +270,7 @@ vs.
 1 asymptotic 4 5  0.8 0.449391 1.150609    # 1.15?
 ```
 /
+
 13. There are another problematic areas for Wald's testing, like mixed models (ironically, numerous statistical packages offer only (or mostly) such inference due to big complexity of the solutions!). For example read: [Paper 5088 -2020; A Warning about Wald Tests](https://support.sas.com/resources/papers/proceedings20/5088-2020.pdf)
 
 ## You said that that different method of testing (Wald's, Rao's, Wilk's LRT) may yield a bit different results?
