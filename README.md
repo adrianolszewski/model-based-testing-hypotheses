@@ -361,7 +361,7 @@ results %>%
      geom_text(data=diff_magnit, aes(y=-0.1, x=N, label=sprintf("Me.Δ=%.4f", median_magn)), size=3))
 ```
 
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/7c550748-5f41-47b0-bae8-704d61d2a9ea)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/c4a39713-9b7e-4952-9a32-e98bdfe08217)
   
 10. Sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? And sometimes the LRT is not available, as mentioned above. Happy those, who have both at their disposal.
 
