@@ -234,9 +234,7 @@ OK, now let's make some notes:
 
 2. In our considerations we'll primarily employ two statistical methods: Wald's test and Wilk's Likelihood Ratio Test (LRT). We'll closely examine how these methods behave in various scenarios.
 
-3. Under the null hypothesis they provide asymptotically equivalent results. Asymptotically means "at infinite sample size". In real-world scenarios they will always differ, but unless you hit the "edge case", they will be rather consistent (at the end of the day, they assess a single thing).
-
-But still, $p-value_WALD \le p-value_LRT \le p_value_RAO$. Even if you don't notice that.
+3. Under the null hypothesis they provide asymptotically equivalent results. Asymptotically means "at infinite sample size". In real-world scenarios they will always differ, but unless you hit the "edge case", they will be rather consistent (at the end of the day, they assess a single thing). But still, Wald ≥ LRT ≥ Rao or, equivalently, $p-value_{WALD} \le p-value_{LRT} \le p_value_{RAO}$. Even if you don't notice that.
   
 4. They may **noticeably** diverge in "edge cases", where the log-likelihood curve of a model parameter in the parameter space deviates from a parabolic shape. If you read either of the 3 first links, you will know what I mean.
 
@@ -249,8 +247,52 @@ But still, $p-value_WALD \le p-value_LRT \le p_value_RAO$. Even if you don't not
 7. LRT is found more conservative than Wald's approach in small samples, because of the relationship between the value of statistic obtained with these three approaches: Wald >= LR >= Rao ([Ranking of Wald, LR and score statistic in the normal linear regression model](https://stats.stackexchange.com/questions/449494/ranking-of-wald-lr-and-score-statistic-in-the-normal-linear-regression-model). It means, that it's less likely to reject a null hypothesis when it's true (i.e., LR has a lower Type-I error rate). This conservativeness can be advantageous when you want to avoid making false-positive errors, such as in clinical trials or other critical applications. In contrast, Wald's test can be more liberal, leading to a higher likelihood of false positives. That's why typically it's advised to select LRT over Wald's - as long as you are free to choose.
 
 Let's summarize it with: "_When the sample size is small to moderate, the Wald test is the least reliable of the three tests. We should not trust it for such a small n as in this example (n = 10). Likelihood-ratio inference and score-test based inference are better in terms of actual error probabilities coming close to matching nominal levels. A marked divergence in the values of the three statistics indicates that the distribution of the ML estimator may be far from normality. In that case, small-sample methods are more appropriate than large-sample methods._ (Agresti, A. (2007). An introduction to categorical data analysis (2nd edition). John Wiley & Sons.)"
-vs.
-"_In conclusion, although the likelihood ratio approach has clear statistical advantages, computationally the Wald interval/test is far easier. In practice, provided the sample size is not too small, and the Wald intervals are constructed on an appropriate scale, they will usually be reasonable (hence their use in statistical software packages). In small samples however the likelihood ratio approach may be preferred._" [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)
+and
+"_In conclusion, although the likelihood ratio approach has clear statistical advantages, computationally the Wald interval/test is far easier. In practice, provided the sample size is not too small, and the Wald intervals are constructed on an appropriate scale, **they will usually be reasonable** (hence their use in statistical software packages). In small samples however the likelihood ratio approach may be preferred._" [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)
+
+I quickly wrote a simulation using the general linear model with a single 3-level categorical predictor, response sampled from the normal distribution, with parameters chosen empirically so that the p-values span several orders of magnitude under the inreasing sample size. The observations in the two above quotes are reflected by the results.
+```r
+set.seed(1000)
+do.call(rbind,
+        lapply(c(5, 10, 50, 100, 200), function(N) {
+          print(N)
+          do.call(rbind,
+                  lapply(1:100, function(i) {
+                      tmp_data <- data.frame(val = c(rnorm(N, mean=0.8), rnorm(N, mean=1), rnorm(N, mean=1.3)),
+                                             gr = c(rep("A", N), rep("B", N), rep("C", N)))
+                      m1 <- lm(val ~ gr, data=tmp_data)
+                      m2 <- lm(val ~ 1, data=tmp_data)
+                      data.frame(Wald = lmtest::waldtest(m1, m2)$`Pr(>F)`[2],
+                                 LRT =  lmtest::lrtest  (m1, m2)$`Pr(>Chisq)`[2])
+                      })) %>% cbind(N=N)
+          })) %>% 
+  mutate(N = factor(N), 
+         "Wald to LRT" = Wald / LRT) -> results
+
+library(gghalves)
+library(patchwork)
+  (results %>% 
+    ggplot(aes(x=Wald, y=LRT, col=N)) +
+    geom_point() +
+    geom_line() +
+    theme_bw() +
+    scale_y_log10() +
+    scale_x_log10() +
+    geom_abline(slope=1, intercept = 0) +
+    labs(title="Wilks' LRT vs. Wald's p-values; General Linear Model")) +
+  (results %>% 
+    ggplot(aes(x=N, y=`Wald to LRT`)) +
+    geom_half_boxplot(nudge = 0.1, outlier.color = NA) +
+    geom_half_violin(side = "r", trim = TRUE, nudge = .1, scale = "width") +
+    geom_point() +
+    scale_y_continuous(breaks=c(0,0.5,1,1.5,2,3,4,5, max(round(results$`Wald to LRT`))), trans="log1p") +
+    geom_hline(yintercept=1, col="green") +
+    theme_bw() +
+    labs(title="Wald : LRT ratio of p-values; LM; General Linear Model"))
+```
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/1b2413ea-c783-4f2e-a27c-b6538af36723)
+
+PS: Something weird - Wald is MORE conservative in this scenario! P-values are larger than for LRT, which means lower test statistic. Need to investigate it.
 
 9. Wald's may not perform well when sample sizes are small or when the distribution of the parameter estimates deviates from normality. In other words, Wald tests assume that the log-likelihood curve (or surface) is quadratic. LRT does not, thus is more robust to the non-normality of the sampling distribution of the parameter of interest.
    
@@ -314,7 +356,7 @@ The mentioned, excellent article [Wald vs likelihood ratio test](https://thestat
 (cited with Prof. Bartlett's permission).
 
 **But what will happen under alternative hypothesis?**
-Briefly - the 3 measures will increase. Whether this will happen in a more or less consistent manner depends on the log-likelihood curve. You may observe a good agreement in the beginning (near to H0) and then quick divergence.
+Briefly - the 3 measures will increase. Whether this will happen in a more or less consistent manner (you remember the relationship: Wald ≥ LRT ≥ Rao) and depends on the log-likelihood curve. You may observe a good agreement in the beginning (near to H0) and then quick divergence.
 
 **The good news is that the discrepancies will rather occur at small p-values, typically below common levels of statistical significance level, so for us, users of the test, the differences may be barely noticeable**, if we are lucky. But read the next section...
 
