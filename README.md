@@ -82,11 +82,11 @@ You will find the $\chi^2$ distribution in at least two key places:
 - when you perform Wald's testing on multiple parameters, then the distribution of the test statistic converges asymptotically with distribution to $\chi^2$.
 
 You'll also meet the name _Wald's_ in 3 contexts, when the Wald's approach is applied to
-- a single-parameter inference, e.g. when doing single comparison (contrast), and the degrees of freedom are known, you will see statistical packages reporting "Wald t". If you look at the formula, it looks much like a single-sample t-test (nominator is the difference, denominator - standard deviation), but that's a different creature and don't confuse the two. It's rather "t ratio". It's t-distributed only under normal sampling distribution of the parameter.
+- a single-parameter inference (simple H0), e.g. when doing simple comparisons (contrasts), and the degrees of freedom are known, you will see statistical packages reporting "Wald t". If you look at the formula, it looks much like a single-sample t-test (nominator is the difference, denominator - standard deviation), but that's a different creature and don't confuse the two. It's rather "t ratio". It's t-distributed only under normal sampling distribution of the parameter.
   
 - a single-parameter inference, but the degrees of freedom aren't known (or are hard to guess) and assumed to be infinite. Then you will see statistical packages reporting "Wald z". You may find also "Wald chi2" - but that's the same, asymptotically $z^2 = \chi^2$.
   
-- a multi-pararameter (like in ANOVA) asymptotic (under infinite degrees of freedom) inference. Then you will see statistical packages reporting "Wald chi2" or similar just "chi2". You may also find something like "Score chi2", which refers to Rao's approach to testing.
+- a multi-pararameter (like in ANOVA) asymptotic (under infinite degrees of freedom) inference employing composite H0. Then you will see statistical packages reporting "Wald chi2" or similar just "chi2". You may also find something like "Score chi2", which refers to Rao's approach to testing.
 
 ## What will you present in this repository?
 
@@ -238,13 +238,23 @@ OK, now let's make some notes:
   
 4. They may **noticeably** diverge in "edge cases", where the log-likelihood curve of a model parameter in the parameter space deviates from a parabolic shape. If you read either of the 3 first links, you will know what I mean.
 
-5. Wald's test is extremely useful for testing hypotheses in both
-   a. covariate-adjusted planned comparisons via contrasts - **that's the ESSENCE of work in experimental research!**
-   b. AN[C]OVA-type joint testing of model coefficients assessing the main and interaction effects (like the classic ANOVA does), especially in non-likelihood models, where it's the only option. Wald's is also the ONLY available method in non-likelihood models, like GEE estimation or quantile regression, so it's important!
+5. Wald's test is extremely useful for testing hypotheses in the following cases:
+   a. any kind of comparisons between group means and their combinations - via contrasts - **that's essential in experimental research employing planned comparisons**
+   b. AN[C]OVA-type joint testing (of model coefficients) to assess the main and interaction effects in non-likelihood models, where it's the only option (__"why is it best? because it's the only available"), like GEE estimated GLM models (accounting for dependency and heteroscedasticity) or in quantile regression. So, despite it's critique (in small samples!) **it's important enough to be the widespread in all statistical packages and that's why you should know it**.
 
-6. Wald's is faster than LRT as it needs only a single model fitting. On the contrary, LRT needs at least 2 fitting to compare 2 nested models: with and without the term you want to assess (you can also compare other settings, like covariance structures). With the increasing number of variables to assess, the number of compared models increases. This becomes especially important if you make inference under the multiple imputation condition (MICE) process, where some analysis is repeated on each imputed dataset and then the results are pooled. In this case the amount of necessary time may be not acceptable.
-  
-7. LRT is found more conservative than Wald's approach in small samples, because of the relationship between the value of statistic obtained with these three approaches: Wald >= LR >= Rao ([Ranking of Wald, LR and score statistic in the normal linear regression model](https://stats.stackexchange.com/questions/449494/ranking-of-wald-lr-and-score-statistic-in-the-normal-linear-regression-model). It means, that it's less likely to reject a null hypothesis when it's true (i.e., LR has a lower Type-I error rate). This conservativeness can be advantageous when you want to avoid making false-positive errors, such as in clinical trials or other critical applications. In contrast, Wald's test can be more liberal, leading to a higher likelihood of false positives. That's why typically it's advised to select LRT over Wald's - as long as you are free to choose.
+6. Wald's is also faster than LRT as it needs only a single model fitting. On the contrary, LRT needs at least 2 fits to compare 2 nested models: with and without the term you want to assess (you can also compare other settings, like covariance structures). With the increasing number of variables to assess, the number of compared models increases as well.
+
+I hear you: _Yes, but computers nowadays are faster and faster, minimizing the importance of this very issue_. OK, but nature abhors a vacuum - whenever something drops, something else appears: 
+- analyses employing **multiple imputation of missing data** (like MICE). In such setting the inference is repeated on each imputed dataset several times (20-50 and more) and then the results are pooled. The amount of necessary time may be not acceptable, especially if you have more analyses to complete.
+- in small-sample inference, especially in repeated-observation (longitudinal) studies, **computationally-demanding adjustments to degrees of freedom** (like **Satterthwaite** and **Kenward-Roger** (DoF + covariance)) are in common use. They are standard in fields like mine (clinical trials). They can slow down the calculations several times!
+- **employing complex covariance structures in dependent-observation model** (repeated, clustered) requires many parameters (co-variances) to be estimated, which increases the time of fitting noticeably!
+- MLE, IWLS and similar methods are iterative, so let's hope the implementation you use is optimal, or it will slow down the LRT inference as well.
+
+And now: ALL the four scenarios often **occur together**. In my work it's a daily reality to work with models accounting for repeated-observation, employinig small-sample adjustments to degrees of freedom, and working under the multiple imputation setting.
+
+**LRT inference in this case can be really painful. If only the sample size > 15-20 observations, Wald's approach with all ciriticism can win with the complexity of LRT**.
+
+9. LRT is found more conservative than Wald's approach in small samples, because of the relationship between the value of statistic obtained with these three approaches: Wald >= LR >= Rao ([Ranking of Wald, LR and score statistic in the normal linear regression model](https://stats.stackexchange.com/questions/449494/ranking-of-wald-lr-and-score-statistic-in-the-normal-linear-regression-model). It means, that it's less likely to reject a null hypothesis when it's true (i.e., LR has a lower Type-I error rate). This conservativeness can be advantageous when you want to avoid making false-positive errors, such as in clinical trials or other critical applications. In contrast, Wald's test can be more liberal, leading to a higher likelihood of false positives. That's why typically it's advised to select LRT over Wald's - as long as you are free to choose.
 
 Let's summarize it with: "_When the sample size is small to moderate, the Wald test is the least reliable of the three tests. We should not trust it for such a small n as in this example (n = 10). Likelihood-ratio inference and score-test based inference are better in terms of actual error probabilities coming close to matching nominal levels. A marked divergence in the values of the three statistics indicates that the distribution of the ML estimator may be far from normality. In that case, small-sample methods are more appropriate than large-sample methods._ (Agresti, A. (2007). An introduction to categorical data analysis (2nd edition). John Wiley & Sons.)"
 and
