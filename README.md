@@ -262,7 +262,10 @@ and
 
 "_In conclusion, although the likelihood ratio approach has clear statistical advantages, computationally the Wald interval/test is far easier. In practice, provided the sample size is not too small, and the Wald intervals are constructed on an appropriate scale, **they will usually be reasonable** (hence their use in statistical software packages). In small samples however the likelihood ratio approach may be preferred._" [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)
 
-I quickly wrote a simulation using the general linear model with a single 3-level categorical predictor, response sampled from the normal distribution, with parameters chosen empirically so that the p-values span several orders of magnitude under the inreasing sample size. The observations in the two above quotes are reflected by the results.
+9. Wald's may not perform well when sample sizes are small or when the distribution of the parameter estimates deviates from normality. In other words, Wald tests assume that the log-likelihood curve (or surface) is quadratic. LRT does not, thus is more robust to the non-normality of the sampling distribution of the parameter of interest.
+
+I quickly wrote a simulation using the general linear model with a single 3-level categorical predictor (just for fun), response sampled from the normal distribution, with parameters chosen empirically so that the p-values span several orders of magnitude under the inreasing sample size. The statements made in point 8 and 9 reflected by the results. Under normality of the parameter sampling (natural in this scenario), f**or N>10-20 the differences betweeh the methods are negligible so there's no need to blame Wald's and pray LRT**.
+
 ```r
 set.seed(1000)
 do.call(rbind,
@@ -270,7 +273,7 @@ do.call(rbind,
           print(N)
           do.call(rbind,
                   lapply(1:100, function(i) {
-                      tmp_data <- data.frame(val = c(rnorm(N, mean=0.8), rnorm(N, mean=1), rnorm(N, mean=1.3)),
+                      tmp_data <- data.frame(val = c(rnorm(N, mean=0.9), rnorm(N, mean=1), rnorm(N, mean=1.3)),
                                              gr = c(rep("A", N), rep("B", N), rep("C", N)))
                       m1 <- lm(val ~ gr, data=tmp_data)
                       m2 <- lm(val ~ 1, data=tmp_data)
@@ -300,14 +303,66 @@ library(patchwork)
     scale_y_continuous(breaks=c(0,0.5,1,1.5,2,3,4,5, max(round(results$`Wald to LRT`))), trans="log1p") +
     geom_hline(yintercept=1, col="green") +
     theme_bw() +
-    labs(title="Wald : LRT ratio of p-values; LM; General Linear Model"))
+    labs(title="Wald : LRT ratio of p-values; General Linear Model"))
 ```
-![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/1b2413ea-c783-4f2e-a27c-b6538af36723)
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/833e505d-2aa9-4a88-bc12-d193a5add1b9)
 
-PS: Something weird - Wald is MORE conservative in this scenario! P-values are larger than for LRT, which means lower test statistic. Need to investigate it.
+PS: Something weird here - Wald is MORE conservative in this scenario! P-values are larger than for LRT, which means lower test statistic. Need to investigate it!
 
-9. Wald's may not perform well when sample sizes are small or when the distribution of the parameter estimates deviates from normality. In other words, Wald tests assume that the log-likelihood curve (or surface) is quadratic. LRT does not, thus is more robust to the non-normality of the sampling distribution of the parameter of interest.
-   
+If we move away from the quadrative log-likelihood (typically for binomial-distribution problem), we observe discrepancies, as anticipated by the theory. But when the differences matter, it's far below any common significance level. So again, Wald's not that bad here!
+
+```r
+set.seed(1000)
+do.call(rbind,
+        lapply(c(5, 10, 50, 100, 200), function(N) {
+          print(N)
+          do.call(rbind,
+                  lapply(1:100, function(i) {
+                    
+                    tmp_data <- data.frame(val = c(sample(x = 0:1, size=N, prob=c(5,5), replace=TRUE),
+                                                   sample(x = 0:1, size=N, prob=c(6,4), replace=TRUE), 
+                                                   sample(x = 0:1, size=N, prob=c(5,5), replace=TRUE)),
+                                           gr = c(rep("A", N), rep("B", N), rep("C", N)))
+                    
+                    m1 <- glm(val ~ gr, family = binomial(link="logit"), data=tmp_data)
+                    m2 <- glm(val ~ 1, family = binomial(link="logit"), data=tmp_data)
+                    
+                    data.frame(Wald = lmtest::waldtest(m1, m2)$`Pr(>F)`[2],
+                               LRT =  lmtest::lrtest  (m1, m2)$`Pr(>Chisq)`[2])
+                    
+                  })) %>% cbind(N=N)
+        })) %>% 
+  mutate(N = factor(N), 
+         "Wald to LRT" = Wald / LRT,
+         Magnitude = abs(Wald - LRT)) -> results
+
+results %>% 
+  group_by(N) %>% 
+  summarize(median_magn = median(Magnitude)) -> diff_magnit
+
+(results %>% 
+    ggplot(aes(x=Wald, y=LRT, col=N)) +
+    geom_point() +
+    geom_line() +
+    theme_bw() +
+    scale_y_log10() +
+    scale_x_log10() +
+    geom_abline(slope=1, intercept = 0) +
+    labs(title="Wilks' LRT vs. Wald's p-values; Generalized Linear Model")) +
+  (results %>% 
+     ggplot(aes(x=N, y=`Wald to LRT`)) +
+     geom_half_boxplot(nudge = 0.1, outlier.color = NA) +
+     geom_half_violin(side = "r", trim = TRUE, nudge = .1, scale = "width") +
+     geom_point() +
+     scale_y_continuous(breaks=c(0,0.5,1,1.5,2,3,4,5, max(round(results$`Wald to LRT`))), trans="log1p") +
+     geom_hline(yintercept=1, col="green") +
+     theme_bw() +
+     labs(title="Wald : LRT ratio of p-values; Generalized Linear Model") +
+     geom_text(data=diff_magnit, aes(y=-0.1, x=N, label=sprintf("Me.Δ=%.4f", median_magn)), size=3))
+```
+
+![obraz](https://github.com/adrianolszewski/model-based-testing-hypotheses/assets/95669100/7c550748-5f41-47b0-bae8-704d61d2a9ea)
+  
 10. Sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? And sometimes the LRT is not available, as mentioned above. Happy those, who have both at their disposal.
 
 11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in more complex analysis of contrasts (e.g. in planned covariate-adjusted comparisons), where it's hard or just impossible to specify the nested models by hand. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, **which means that "sky is the only limit" when testing contrasts of any complexity**. With LRT it will be much harder to obtain appropriate parametrization.
