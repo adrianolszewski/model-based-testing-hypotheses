@@ -71,6 +71,8 @@ Or differently. Let's consider a simple model with just one 3-level categorical 
 - In case of the GLM we replace the residual variance with deviance, directly related to the likelihood ratio. It's still based on model comparison - this time through the model likelihood ratio. If LR <> 1, then it means that removing the variable of interest worsened the fit. That's the Wilk's LRT aproach, employing the $\chi^2$ distribution.
 
 **That's exactly how the R's anova(), car::Anova(), emmeans::joint_tests() and a few more methods work.**
+Other statistical packages do it too.
+See? **The model-based approach to ANOVA is not just "some observation made in some books", that's the common approach to it!**
 
 PS: let's recall, by the way, that Chi2 is a limiting distribution for F under infinite denominator degrees of freedom:
 If $X \sim F(n_1, n_2)$, the limiting distribution of $n_1X$ as $n_2 \rightarrow \infty$ is the $\chi^2$ distribution with $n_1$ degrees of freedom.
@@ -214,6 +216,7 @@ You can start from:
 - [Likelihood-ratio test or z-test?](https://stats.stackexchange.com/questions/48206/likelihood-ratio-test-or-z-test)
 - [FAQ: How are the likelihood ratio, Wald, and Lagrange multiplier (score) tests different and/or similar?](https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faqhow-are-the-likelihood-ratio-wald-and-lagrange-multiplier-score-tests-different-andor-similar/)
 - [Wald vs likelihood ratio test](https://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/)
+- [Score, Wald, and Likelihood Ratio](https://myweb.uiowa.edu/pbreheny/7110/f21/notes/10-25.pdf)
 
 Cannot live wihout a solid dose of math? Look there:
 - [Mathematical Statistics — Rigorous Derivations and Analysis of the Wald Test, Score Test, and Likelihood Ratio Test. Derivations of the Classic Trinity of Inferential Tests with Full Computational Simulation](https://towardsdatascience.com/mathematical-statistics-a-rigorous-derivation-and-analysis-of-the-wald-test-score-test-and-6262bed53c55)
