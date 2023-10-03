@@ -368,7 +368,7 @@ results %>%
   
 10. Sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? And sometimes the LRT is not available, as mentioned above. Happy those, who have both at their disposal.
 
-11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but doesn't help in more complex analysis of contrasts (e.g. in planned covariate-adjusted comparisons), where it's hard or just impossible to specify the nested models by hand. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, **which means that "sky is the only limit" when testing contrasts of any complexity**. With LRT it will be much harder to obtain appropriate parametrization.
+11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but mat not be available in your software for a more complex analysis of contrasts (e.g. in planned covariate-adjusted comparisons), so you'll have to specify the nested models by hand. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, **which means that "sky is the only limit" when testing contrasts of any complexity**. With LRT it will be much harder to obtain appropriate parametrization.
     
 12. **Wald's (and Rao!) inference is not transformation (or re-parametrization) invariant**, using derivatives, sensitive to it. If you use Wald's to calculate p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!).
 On the contrary, the **LRT IS transformation invariant** and will have exactly the same value regardless of any monotononus transformation of the parameter.
@@ -675,12 +675,38 @@ If you use R:
 
 And then you don't have to to split hairs. Remember also, that as long, as your model contains multiple categorical predictors and numerical covariates, you cannot compare it with most classic tests (limited to just 1 categorical predictor).
 
-## Conclusions:
+## I give up! Too many information! Briefly - is Wald just bad and LRT just awesome?
 
-At the end of the day, you will need to agree on some trade-offs:
-1. availability of procedures in your statistical tool.
-2. goal of the analysis: analysis of contrasts for simple effects of interest will usually need Wald's testing (remember to keep appropriate scale!). Type-2 and Type-3 ANOVA over the general (OLS-fit regression) and generalized (GLM) models will be done via Wilks' LRT.
-3. stastistical limitations: if you need to obtain Type-2 or Type-3 ANOVA-like analysis of the main and interaction effects for GEE-estimated models or quantile regression, you will end up with Wald's approach (maybe with some bootstrap).
+No.
+
+LRT - advantages:
+1) At small samples you rather won't test complex hypotheses and contrasts, but rather the effect off (a) single variable(s), e.g. "treatment arm". LRT for such comparison will be avaiable in your statistical package and will be likely better than Wald's
+2) Whatever scale you choose (e.g. in binomial models: log-ods or probability) - LRT will do equally well (unlike Wald's)
+3) In simple scenarios you may not notice the increased testing time due to multiple fitting.
+4) May be available even when Wald's fails to calculate.
+
+LRT - disadvantages or no clear benefit:
+0) When you work with small N, like N<20, then ANY analysis you do may be unreliable. If you believe that "tools and tricks" will manage, you cheat yourself. Think twice, then pick the LRT.
+1) If you need to test contrasts accounting for appropriate covariance(s) and degrees of freedom adjustments, like in repeated-data setting, the LRT rather won't be available in your stat. software.
+2) If you need to test something over a non-likelihood model - LRT will no be available.
+3) If you work under a computational-demanding setting (multiple imputation + Kenward-Roger + unstructured covariance + multiple variables, you may prefer not to use it.
+4) Support in statistical packages may be seriously limited. Lots' of necessary work may be up to you.
+   
+Wald's - advantages:
+1) As fast as fitting the model sigle time. Matters when run under multiple imputation.
+2) OK if you pick apporpriate scale (e.g. log-odds rather than probability; Note, the probability scale CAN BE USED TOO, just with care and confirm it with the analaysis on log-odds)
+3) In models assuming conditional normality and at N>20-50 (depending on model) - not much worse than LRT. I guess you have enough data, if you start playing with complex contrasts?
+4) The farther from the null hypothesis, the less you care about the discrepancies (occurring typically at low p-values). Who cares if Wald p=0.0000000034 and LRT p=0.000000084? Don't make it absurd!
+5) You can compare any contrasts you want, accounting for covariances, degrees of freedom small-sample adjustments, robust estimators of covariance, any kind of covariance structure, etc.
+6) rellted with 5 - so you can use the multivariate-t distribution ("mvt") based exacty adjustment for multiple comparisons
+7) Available for non-likelihood models (GEE-estimated GLM; and such models usually NEED more data!)
+8) Available in all statistical packages.
+
+Wald's - disadvantages:
+1) At N<20-50 may be anti-conservative, worse than LRT
+2) May fail to calculate
+3) May give different estimates when used on different scale (e.g. log-odds vs. probability). You can calculate it in both and - if consistent - report the one you prefer. Otherwise report the one you find more relevant.
+4) In edge case can yield very different results - typically that's a sign of small sample or very "edge case". In such case don't trust either, but prefer LRT.
 
 There is no one-size-fits-all solution in statistics.
 
