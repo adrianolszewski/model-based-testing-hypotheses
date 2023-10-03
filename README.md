@@ -691,6 +691,7 @@ LRT - disadvantages or no clear benefit:
 2) If you need to test something over a non-likelihood model - LRT will no be available.
 3) If you work under a computational-demanding setting (multiple imputation + Kenward-Roger + unstructured covariance + multiple variables, you may prefer not to use it.
 4) Support in statistical packages may be seriously limited. Lots' of necessary work may be up to you.
+5) No test for LS-means (EM-means). Recall, testing model coefficients is NOT the same as testing LS-means in general. Moreover, you may want to test at CERTAIN value of the numerical covariate.
    
 Wald's - advantages:
 1) As fast as fitting the model sigle time. Matters when run under multiple imputation.
@@ -701,6 +702,7 @@ Wald's - advantages:
 6) rellted with 5 - so you can use the multivariate-t distribution ("mvt") based exacty adjustment for multiple comparisons
 7) Available for non-likelihood models (GEE-estimated GLM; and such models usually NEED more data!)
 8) Available in all statistical packages.
+9) Allows for testing LS-means (EM-means) and at CERTAIN values of the numerical covariate(s).
 
 Wald's - disadvantages:
 1) At N<20-50 may be anti-conservative, worse than LRT
