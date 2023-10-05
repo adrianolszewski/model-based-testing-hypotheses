@@ -368,7 +368,7 @@ results %>%
   
 10. Sometimes Wald's testing fails to calculate (e.g. estimation of covariance fails), while the likelihood is still obtainable and then the LRT is the only method that works. Who said the world is simple? And sometimes the LRT is not available, as mentioned above. Happy those, who have both at their disposal.
 
-11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but mat not be available in your software for a more complex analysis of contrasts (e.g. in planned covariate-adjusted comparisons), so you'll have to specify the nested models by hand. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, **which means that "sky is the only limit" when testing contrasts of any complexity**. With LRT it will be much harder to obtain appropriate parametrization.
+11. LRT allows one for performing AN[C]OVA-type analyse (which requires careful specification of the model terms!) but mat not be available in your software for a more complex analysis of contrasts (e.g. in planned covariate-adjusted comparisons), so you'll have to specify the nested models by hand. At the same time, Wald's approach takes full advantage of the estimated parameter and covariance matrix, **which means that "sky is the only limit" when testing contrasts of any complexity**. With LRT it will be harder to obtain appropriate parametrization, but it's still doable if only you carefully set contrasts! (TODO: show example with `glmglrt`)
     
 12. **Wald's (and Rao!) inference is not transformation (or re-parametrization) invariant**, using derivatives, sensitive to it. If you use Wald's to calculate p-value or confidence interval on two different scales, e.g. probability and logit transformed back to the probability scale, you will get different results. Often they are consistent, but discrepancies may occur at the boundary of significance and then you're in trouble. By the way, Wald's on the logit scale will return sensible results, while Wald's applied to probability scale may yield negative probabilities (e.g. -0.12) or exceeding 100% (e.g. 1.14). This is very important when employing LS-means (EM-means) on probability-regrid scale(!).
 On the contrary, the **LRT IS transformation invariant** and will have exactly the same value regardless of any monotononus transformation of the parameter.
@@ -677,21 +677,25 @@ And then you don't have to to split hairs. Remember also, that as long, as your 
 
 ## I give up! Too many information! Briefly - is Wald just bad and LRT just awesome?
 
-No.
+No. At small samples (N~10-30) LRT will be less biased than Wald's. Above they will do approximately equally well (unless edge cases and problematic transformations). Wald's will be eaiser to work with and much faster. That's it.
 
-LRT - advantages:
+More precisely:
+
+**LRT - advantages:**
 1) At small samples you rather won't test complex hypotheses and contrasts, but rather the effect off (a) single variable(s), e.g. "treatment arm". LRT for such comparison will be avaiable in your statistical package and will be likely better than Wald's
 2) Whatever scale you choose (e.g. in binomial models: log-ods or probability) - LRT will do equally well (unlike Wald's)
 3) In simple scenarios you may not notice the increased testing time due to multiple fitting.
 4) May be available even when Wald's fails to calculate.
+5) It's possible to analyze complex contrasts (including difference-in-difference) with LRT as well as with Wald's. It won't be as simple as with the `emmeans` package, and you will need to construct the contrasts carefully selecting appropriate model coefficients.
 
 LRT - disadvantages or no clear benefit:
 0) When you work with small N, like N<20, then ANY analysis you do may be unreliable. If you believe that "tools and tricks" will manage, you cheat yourself. Think twice, then pick the LRT.
 1) If you need to test contrasts accounting for appropriate covariance(s) and degrees of freedom adjustments, like in repeated-data setting, the LRT rather won't be available in your stat. software.
-2) If you need to test something over a non-likelihood model - LRT will no be available.
-3) If you work under a computational-demanding setting (multiple imputation + Kenward-Roger + unstructured covariance + multiple variables, you may prefer not to use it.
-4) Support in statistical packages may be seriously limited. Lots' of necessary work may be up to you.
-5) No test for LS-means (EM-means). Recall, testing model coefficients is NOT the same as testing LS-means in general. Moreover, you may want to test at CERTAIN value of the numerical covariate.
+2) For testing more complex contrasts it won'y be as easy as with, say, the `emmeans` package, where you have all LS-means (EM-means) listed nicely, so just pick the right ones. Model coefficients will depend on the parametrization and for the default, `treatment contrast` (dummy) you will need to be very careful about the reference levels represented by the model coefficients! Also, only a very few models are supported in R package (mostly GLM, Cox), but GLS (MMRM) require extra work...
+4) If you need to test something over a non-likelihood model (e.g. GEE-estimated) - LRT will no be available.
+5) If you work under a computational-demanding setting (multiple imputation + Kenward-Roger + unstructured covariance + multiple variables, you may prefer not to use it due to unacceptably long time of calculations.
+6) Support in statistical packages may be seriously limited. Lots' of necessary work may be up to you.
+7) No test for LS-means (EM-means). Recall, testing model coefficients is NOT the same as testing LS-means in general. Moreover, you may want to test at CERTAIN value of the numerical covariate.
    
 Wald's - advantages:
 1) As fast as fitting the model sigle time. Matters when run under multiple imputation.
