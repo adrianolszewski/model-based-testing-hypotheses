@@ -1,15 +1,20 @@
 # Mann-Whitney (-Wilcoxon)
 
 Still incomplete!
-Check also: https://github.com/adrianolszewski/model-based-testing-hypotheses/blob/main/Tests/Various%20tests%20to%20describe%20one%20by%20one.md#mww
-and (for simulations and liteature) https://gist.github.com/adrianolszewski/2cec75678e1183e4703589bfd22fa8b2
 
 ## Table of contents
 1. Description of the test
-2. Model-based implementation via Ordinal Logistic Regression (aka Proportional-Odds model) - categorical ordinal data
-3. Model-based implementation via Ordinal Logistic Regression (aka Proportional-Odds model) - numerical data
-4. References
-5. [Simulations - how well the model-based approach replicates the classic test](#simulations)
+Start with
+[Equivalence of Wilcoxon Statistic and Proportional Odds Model](https://www.fharrell.com/post/powilcoxon/) | [Resources for Ordinal Regression Models](https://www.fharrell.com/post/rpo/) | [If You Like the Wilcoxon Test You Must Like the Proportional Odds Model](https://www.fharrell.com/post/wpo/)
+
+https://github.com/adrianolszewski/model-based-testing-hypotheses/blob/main/Tests/Various%20tests%20to%20describe%20one%20by%20one.md#mww
+
+For simulations and liteature) https://gist.github.com/adrianolszewski/2cec75678e1183e4703589bfd22fa8b2
+
+3. Model-based implementation via Ordinal Logistic Regression (aka Proportional-Odds model) - categorical ordinal data
+4. Model-based implementation via Ordinal Logistic Regression (aka Proportional-Odds model) - numerical data
+5. References
+6. [Simulations - how well the model-based approach replicates the classic test](#simulations)
 
 Notes: I will use the classic implementation without continuity correction and exact calculation of p-values. Of you feel lost about all those variations on this topic, read this post: [[R] The three routines in R that calculate the wilcoxon signed-rank test give different p-values... which is correct?](https://stat.ethz.ch/pipermail/r-help/2011-April/274931.html)
 
