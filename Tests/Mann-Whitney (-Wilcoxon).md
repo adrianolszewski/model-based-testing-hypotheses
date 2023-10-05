@@ -1,5 +1,8 @@
 # Mann-Whitney (-Wilcoxon)
 
+Still incomplete!
+Check also: https://gist.github.com/adrianolszewski/2cec75678e1183e4703589bfd22fa8b2
+
 ## Table of contents
 1. Description of the test
 2. Model-based implementation via Ordinal Logistic Regression (aka Proportional-Odds model) - categorical ordinal data
