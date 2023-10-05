@@ -1,7 +1,8 @@
 # Mann-Whitney (-Wilcoxon)
 
 Still incomplete!
-Check also: https://gist.github.com/adrianolszewski/2cec75678e1183e4703589bfd22fa8b2
+Check also: https://github.com/adrianolszewski/model-based-testing-hypotheses/blob/main/Tests/Various%20tests%20to%20describe%20one%20by%20one.md#mww
+and (for simulations and liteature) https://gist.github.com/adrianolszewski/2cec75678e1183e4703589bfd22fa8b2
 
 ## Table of contents
 1. Description of the test
