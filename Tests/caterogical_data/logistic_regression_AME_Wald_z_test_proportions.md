@@ -319,8 +319,8 @@ Although some minor discrepancies exist due to Maximum Likelihood Estimation, ev
 **Average Marginal Effect**
 ```r
 > wald_z_test_non_pooled(x1 = 6, n1 = 20, x2 = 10, n2 = 20)
-  diff         z    chi2        se  p.value  p.value_1        LCI        HCI
-1 -0.2 -1.318761 1.73913 0.1516575 0.187249 0.09362452 -0.4972433 0.09724326
+  diff         z    chi2        se  p.value        LCI        HCI
+1 -0.2 -1.318761 1.73913 0.1516575 0.187249 -0.4972433 0.09724326
 > 
 > data <- data.frame(response = factor(c(rep("Success", 6), rep("Failure", 20-6),
 +                                        rep("Success", 10), rep("Failure", 20-10))),
@@ -363,7 +363,7 @@ wald_z_test_non_pooled <- function(x1, n1, x2, n2, conf.level=0.95) {
     return(data.frame(diff=p1-p2,
                       z = z, chi2 = z^2,
                       se = se_diff, 
-                      p.value = p, p.value_1 =p/2,
+                      p.value = p,
                       LCI = (p1-p2) - hCI,
                       HCI = (p1-p2) + hCI,
                       row.names = NULL))
