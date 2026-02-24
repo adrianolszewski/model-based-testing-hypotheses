@@ -123,3 +123,9 @@ X-squared = 6.2859, df = 1, p-value = 0.01217
 ```
 
 ![obraz](https://github.com/user-attachments/assets/96158adb-97c5-4299-98f2-16a132760912)
+
+---
+
+PS: You might notice the code uses the name "Wald". In the GLM family, Wald, Rao (Score), and Likelihood Ratio tests only converge asymptotically. Strictly speaking, the pooled z-statistic derived here is a Rao Score test, **not a Wald test**.
+
+However, because the term "Wald test" is frequently (and incorrectly) used as an umbrella term for any z-ratio in software and textbooks, I’ve retained the name for consistency with common practice. The critical takeaway is the use of pooled standard errors, which aligns this calculation with Rao’s approach rather than the unpooled Wald approach.
