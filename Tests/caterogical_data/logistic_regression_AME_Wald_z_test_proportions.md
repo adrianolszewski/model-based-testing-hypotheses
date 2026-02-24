@@ -172,8 +172,8 @@ Therefore,
     =
     \left[
         \begin{matrix}
-            \frac{e^{\beta_0+\beta_1}}{\left(1+e^{\beta_0+\beta_1}\right)^2} \\
-            \frac{e^{\beta_0}}{\left(1+e^{\beta_0}\right)^2}
+            \frac{e^{\beta_0+\beta_1}}{\left(1+e^{\beta_0+\beta_1}\right)^2} - \frac{e^{\beta_0}}{\left(1+e^{\beta_0}\right)^2} \\
+            \frac{e^{\beta_0+\beta_1}}{\left(1+e^{\beta_0+\beta_1}\right)^2}
         \end{matrix}
     \right]
     \hspace{1.5cm} (15)
