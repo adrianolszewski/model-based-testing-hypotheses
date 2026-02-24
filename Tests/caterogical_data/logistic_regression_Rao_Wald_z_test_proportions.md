@@ -15,7 +15,7 @@ We will assume independent binomial sampling and no small-sample corrections. Th
 
 ``` math
 \begin{equation}
-z=\ \frac{\widehat{p_B}-\widehat{p_A}}{\sqrt{p\left(1-p\right)\left(\frac{1}{n_A}+\frac{1}{n_B}\right)}};\ z~N(0,\ 1)
+z=\ \frac{\widehat{p_B}-\widehat{p_A}}{\sqrt{p\left(1-p\right)\left(\frac{1}{n_A}+\frac{1}{n_B}\right)}};\ z \sim N(0,\ 1)
 \hspace{2cm} (1)
 \end{equation}
 ```
