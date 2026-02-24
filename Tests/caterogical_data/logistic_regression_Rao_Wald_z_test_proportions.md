@@ -12,7 +12,7 @@ z=\ \frac{\widehat{p_B}-\widehat{p_A}}{\sqrt{p\left(1-p\right)\left(\frac{1}{n_A
 Where $\widehat{p_A}\$ stands for the estimated probability (sample proportion, %) in the 1st group, 
 $\widehat{p_B}$ is the estimated probability in the 2nd group, $n_A$ and $n_B$ denote respective group sizes, and p is the pooled probability $p=\frac{x_A+x_B}{n_A+n_B}$.
 
-Traditionally the Wald’s statistic is expressed in the squared form, becoming: $z^2=\chi_{df=1}^2$.
+Traditionally the z statistic here is expressed in the squared form, becoming: $z^2=\chi_{df=1}^2$.
 Both forms yield the same p-value. For convenience I will show that this  $\chi_{df=1}^2$ statistic is 1:1 equivalent to the Rao score test over the logistic regression with a single binary predictor playing role of indicator for the compared samples.
 To simplify calculations, I will derive the formula for pooled probability p and the overall statistic form separately.
 
