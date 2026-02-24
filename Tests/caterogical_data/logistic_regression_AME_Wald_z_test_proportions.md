@@ -6,6 +6,7 @@
 What you will read below  demonstrates **the algebraic equivalence between selected classical hypothesis tests and their model-based analogues** under common large-sample assumptions. My goal was to show how the formulas transition from one framework to another. The derivations focus on analytic equivalence of test statistics and **do not provide a fully rigorous proof** of asymptotic distributions or verify all regularity conditions required in formal statistical theory. As such, this note should be viewed as a **proof of concept** and kind of a _"conceptual bridge"_ rather than a complete theoretical course. In particular: distributional assumptions are stated informally rather than derived formally, asymptotic arguments (e.g., convergence to χ² distributions) are not proven (it is not a textbook!), conditions required for likelihood-based theory are not verified.
    
 **So, if you prepare for an exam, use it with care.**
+
 ---
 
 We will assume independent binomial sampling and no small-sample corrections.
