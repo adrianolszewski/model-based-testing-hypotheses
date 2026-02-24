@@ -8,6 +8,7 @@
 2. You might notice the code uses the name "Wald". It's intentional. In the GLM family, Wald, Rao (Score), and Likelihood Ratio tests only converge asymptotically. Strictly speaking, the pooled z-statistic derived here is a Rao Score test, **not a Wald test**. However, because the term "Wald test" is frequently (and incorrectly) used as an umbrella term for any z-ratio in software and textbooks, and I saw many times that people search for it in this way. So I’ve retained the name for consistency with common practice. The critical takeaway is the use of pooled standard errors, which aligns this calculation with Rao’s approach rather than the unpooled Wald approach.
 
 **So, if you prepare for an exam, use it with care.**
+
 ---
 
 We will assume independent binomial sampling and no small-sample corrections. The z-statistic for difference in 2 proportions with unpooled variances is of the following form:
@@ -422,7 +423,7 @@ R&=U\left(\beta_0,\beta_1=0\right)\mathrm{\Sigma}\left(\beta_0,\beta_1=0\right)=
 \end{equation}
 ```
 
-This way I have showed the structural equivalence of the 2-sample z-statistic for comparing proportions with pooled variances and the Rao score test over the logistic regression with a single binary predictor distinguishing the compared samples.
+This way I have shown the structural equivalence of the 2-sample z-statistic for comparing proportions with pooled variances and the Rao score test over the logistic regression with a single binary predictor distinguishing the compared samples.
 
 ``` r
 > wald_z_test_pooled(x1 = 6, n1 = 20, x2 = 10, n2 = 20)
