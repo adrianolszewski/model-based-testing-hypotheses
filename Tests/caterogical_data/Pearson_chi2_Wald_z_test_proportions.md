@@ -1,4 +1,4 @@
-# Proving the equivalence between the 2-sample z-statistic for comparing proportions with pooled variances and the Pearson’s χ2 (independence) test for a 2×2 contingency table.
+# Proving the equivalence between the 2-sample z-statistic for comparing proportions with pooled variances (Rao score test) and the Pearson’s χ2 (independence) test for a 2×2 contingency table.
 #### Adrian Olszewski, 27.03.2025
 
 The z-statistic for difference in 2 proportions (Rao) with unpooled variances is of the following form:
