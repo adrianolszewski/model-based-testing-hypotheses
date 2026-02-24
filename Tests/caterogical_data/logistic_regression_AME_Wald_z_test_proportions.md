@@ -360,4 +360,3 @@ wald_z_test_non_pooled <- function(x1, n1, x2, n2, conf.level=0.95) {
 }
 ```
 
-````````
