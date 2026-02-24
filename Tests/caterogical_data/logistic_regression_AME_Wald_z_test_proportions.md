@@ -1,6 +1,14 @@
 # Proving the equivalence between the 2-sample Wald’s z-statistic for comparing proportions with unpooled variances and the Average Marginal Effect over logistic regression with a single binary predictor
 #### Adrian Olszewski, 02.03.2025
 
+---
+⚠️**Disclaimer:**
+What you will read below  demonstrates **the algebraic equivalence between selected classical hypothesis tests and their model-based analogues** under common large-sample assumptions. My goal was to show how the formulas transition from one framework to another. The derivations focus on analytic equivalence of test statistics and **do not provide a fully rigorous proof** of asymptotic distributions or verify all regularity conditions required in formal statistical theory. As such, this note should be viewed as a **proof of concept** and kind of a _"conceptual bridge"_ rather than a complete theoretical course. In particular: distributional assumptions are stated informally rather than derived formally, asymptotic arguments (e.g., convergence to χ² distributions) are not proven (it is not a textbook!), conditions required for likelihood-based theory are not verified.
+   
+**So, if you prepare for an exam, use it with care.**
+---
+
+We will assume independent binomial sampling and no small-sample corrections.
 The Wald’s z-statistic for difference in 2 proportions with unpooled variances is of the following form:
 
 ``` math
@@ -301,7 +309,8 @@ var\left(AME\right)=\frac{V_A}{n_A}+\frac{V_B}{n_B}=\frac{P_AQ_A}{n_A}+\frac{P_B
 \hspace{2cm} (29)
 \end{equation}
 ```
-This way I have shown the equivalence of the 2-sample Wald’s z-statistic for comparing proportions with unpooled variances and the average marginal effect of the logistic regression with a single binary predictor distinguishing the compared samples.
+This way I have shown the structural equivalence of the 2-sample Wald’s z-statistic for comparing proportions with unpooled variances and the average marginal effect of the logistic regression with a single binary predictor distinguishing the compared samples.
+
 Also, since the Estimated Marginal Means (EM-Means) on so defined logistic regression and “re-grided” to the probability scale represent the estimated probabilities, the contrast comparing them through the Wald’s approach yields exactly the same result.
  
 Although some minor discrepancies exist due to Maximum Likelihood Estimation, even for so small samples (N=10 and 20) the agreement is just perfect.
