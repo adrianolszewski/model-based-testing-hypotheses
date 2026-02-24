@@ -427,8 +427,8 @@ This way I have shown the structural equivalence of the 2-sample z-statistic for
 
 ``` r
 > wald_z_test_pooled(x1 = 6, n1 = 20, x2 = 10, n2 = 20)
-  diff         z     chi2        se   p.value p.value_1        LCI       HCI
-1 -0.2 -1.290994 1.666667 0.1549193 0.1967056 0.0983528 -0.5036363 0.1036363
+  diff         z     chi2        se   p.value        LCI       HCI
+1 -0.2 -1.290994 1.666667 0.1549193 0.1967056 -0.5036363 0.1036363
 
 > prop.test(c(6,10), c(20,20), correct = FALSE)
 
@@ -482,7 +482,7 @@ wald_z_test_pooled <- function(x1, n1, x2, n2, conf.level=0.95) {
   return(data.frame(diff=p1-p2, 
                     z = z, 
                     chi2 = z^2,
-                    se = se_diff, p.value = p, p.value_1 =p/2,
+                    se = se_diff, p.value = p,
                     LCI = (p1-p2) - hCI,
                     HCI = (p1-p2) + hCI,
                     row.names = NULL))
