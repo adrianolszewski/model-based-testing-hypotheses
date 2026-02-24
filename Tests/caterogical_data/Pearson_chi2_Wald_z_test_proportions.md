@@ -1,7 +1,7 @@
-# Proving the equivalence between the 2-sample Wald’s z-statistic for comparing proportions with pooled variances and the Pearson’s χ2 (independence) test for a 2×2 contingency table.
+# Proving the equivalence between the 2-sample z-statistic for comparing proportions with pooled variances and the Pearson’s χ2 (independence) test for a 2×2 contingency table.
 #### Adrian Olszewski, 27.03.2025
 
-The Wald’s z-statistic for difference in 2 proportions with unpooled variances is of the following form:
+The z-statistic for difference in 2 proportions (Rao) with unpooled variances is of the following form:
 
 ``` math
 \begin{equation}
@@ -12,7 +12,7 @@ z=\ \frac{\widehat{p_B}-\widehat{p_A}}{\sqrt{p\left(1-p\right)\left(\frac{1}{n_A
 Where $\widehat{p_A}\$ stands for the estimated probability (sample proportion, %) in the 1st group, 
 $\widehat{p_B}$ is the estimated probability in the 2nd group, $n_A$ and $n_B$ denote respective group sizes, and p is the pooled probability $p=\frac{x_A+x_B}{n_A+n_B}=\frac{p_An_A+p_Bn_B}{n_A+n_B}$.
 
-Traditionally the Wald’s statistic is expressed in the squared form, becoming: $z^2=\chi_{df=1}^2$.
+Traditionally the z statistic is expressed in the squared form, becoming: $z^2=\chi_{df=1}^2$.
 Both forms yield the same p-value. For convenience I will show that this  $\chi_{df=1}^2$ statistic is 1:1 equivalent to the $χ^2$ (independence) test for a 2×2 contingency table.
 
 Let’s define the form of the 2×2 contingency table with the observed (O) counts:
