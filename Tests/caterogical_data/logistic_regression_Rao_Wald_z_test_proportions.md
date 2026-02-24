@@ -1,7 +1,7 @@
-# Proving the equivalence between the 2-sample Wald’s z-statistic for comparing proportions with pooled variances and the Rao score test over logistic regression with a single binary predictor
+# Proving the equivalence between the 2-sample z-statistic for comparing proportions with pooled variances and the Rao score test over logistic regression with a single binary predictor
 #### Adrian Olszewski, 21.03.2025
 
-The Wald’s z-statistic for difference in 2 proportions with unpooled variances is of the following form:
+The z-statistic for difference in 2 proportions with unpooled variances is of the following form:
 
 ``` math
 \begin{equation}
@@ -413,7 +413,7 @@ R&=U\left(\beta_0,\beta_1=0\right)\mathrm{\Sigma}\left(\beta_0,\beta_1=0\right)=
 \end{equation}
 ```
 
-This way I have proven the equivalence of the 2-sample Wald’s z-statistic for comparing proportions with pooled variances and the Rao score test over the logistic regression with a single binary predictor distinguishing the compared samples.
+This way I have proven the equivalence of the 2-sample z-statistic for comparing proportions with pooled variances and the Rao score test over the logistic regression with a single binary predictor distinguishing the compared samples.
 
 ``` r
 > wald_z_test_pooled(x1 = 6, n1 = 20, x2 = 10, n2 = 20)
@@ -478,3 +478,7 @@ wald_z_test_pooled <- function(x1, n1, x2, n2, conf.level=0.95) {
                     row.names = NULL))
 }
 ```
+---
+PS: You might notice the code uses the name "Wald". In the GLM family, Wald, Rao (Score), and Likelihood Ratio tests only converge asymptotically. Strictly speaking, the pooled z-statistic derived here is a Rao Score test, **not a Wald test**.
+
+However, because the term "Wald test" is frequently (and incorrectly) used as an umbrella term for any z-ratio in software and textbooks, I’ve retained the name for consistency with common practice. The critical takeaway is the use of pooled standard errors, which aligns this calculation with Rao’s approach rather than the unpooled Wald approach.
