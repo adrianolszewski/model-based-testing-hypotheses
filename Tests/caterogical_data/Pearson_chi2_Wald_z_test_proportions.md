@@ -12,7 +12,7 @@
 ---
 
 We will assume independent binomial sampling and no small-sample corrections.
-The z-statistic for difference in 2 proportions (Rao) with unpooled variances is of the following form:
+The z-statistic for difference in 2 proportions (Rao) with pooled variances is of the following form:
 
 ``` math
 \begin{equation}
