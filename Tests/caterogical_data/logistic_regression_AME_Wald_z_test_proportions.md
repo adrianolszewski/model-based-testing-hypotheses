@@ -179,6 +179,8 @@ Therefore,
     \hspace{1.5cm} (15)
 \end{equation}
 ```
+/ ... honestly, I prefer the P_i and Q_i over these e^{...}, so let's stay with Pi, Qi. /
+
 Now, we need the variance-covariance matrix, i.e.
 ``` math
 \begin{equation}
