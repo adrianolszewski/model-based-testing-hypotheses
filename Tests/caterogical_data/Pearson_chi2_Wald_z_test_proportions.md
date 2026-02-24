@@ -21,7 +21,9 @@ z=\ \frac{\widehat{p_B}-\widehat{p_A}}{\sqrt{p\left(1-p\right)\left(\frac{1}{n_A
 \end{equation}
 ```
 Where $\widehat{p_A}\$ stands for the estimated probability (sample proportion, %) in the 1st group, 
-$\widehat{p_B}$ is the estimated probability in the 2nd group, $n_A$ and $n_B$ denote respective group sizes, and p is the pooled probability $p=\frac{x_A+x_B}{n_A+n_B}=\frac{p_An_A+p_Bn_B}{n_A+n_B}$.
+$\widehat{p_B}$ is the estimated probability in the 2nd group, $n_A$ and $n_B$ denote respective group sizes, and p is the pooled probability $p=\frac{x_A+x_B}{n_A+n_B}=\frac{\widehat{p_A}n_A+\widehat{p_B}n_B}{n_A+n_B}$.
+
+(but let me skip the ^ from all p later in the text for my convenience)
 
 Traditionally the z statistic is expressed in the squared form, becoming: $z^2=\chi_{df=1}^2$.
 Both forms yield the same p-value. For convenience I will show that this  $\chi_{df=1}^2$ statistic is 1:1 equivalent to the $χ^2$ (independence) test for a 2×2 contingency table.
