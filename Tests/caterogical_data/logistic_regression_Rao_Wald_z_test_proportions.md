@@ -1,4 +1,4 @@
-# Proving the equivalence between the 2-sample z-statistic for comparing proportions with pooled variances and the Rao score test over logistic regression with a single binary predictor
+# Proving the equivalence between the 2-sample z-statistic (Chi2 test for 2x2) for comparing proportions with pooled variances and the Rao score test over logistic regression with a single binary predictor
 #### Adrian Olszewski, 21.03.2025
 
 ---
