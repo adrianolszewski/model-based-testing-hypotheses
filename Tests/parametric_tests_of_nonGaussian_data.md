@@ -249,7 +249,7 @@ beta2_data[beta2_data$sample == 1, "sample"] <- beta2_data[beta2_data$sample == 
 plot_data(beta2_data, title = "Beta 2")
 ```
 
-<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/b1ae0c00-c6a2-475d-bc26-f050e76b39bb" />
+<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/700f3160-fe4d-48d1-b1da-b70cd02c04f6" />
 
 ``` r
 model_full <- betareg::betareg(sample ~ group, data = beta2_data, )
