@@ -190,7 +190,7 @@ beta1_data <- data.frame(sample = c(rbeta(N/2, shape1 = 0.1, shape2 = 0.1), rbet
 plot_data(beta1_data, title = "Beta 1")
 ```
 
-<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/130b885b-07f0-442b-9765-528c03c27e37" />
+<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/b15af46e-0c20-4038-9787-b9f2157b1808" />
 
 ``` r
 model_full <- betareg::betareg(sample ~ group, data = beta1_data)
@@ -249,7 +249,7 @@ beta2_data[beta2_data$sample == 1, "sample"] <- beta2_data[beta2_data$sample == 
 plot_data(beta2_data, title = "Beta 2")
 ```
 
-<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/700f3160-fe4d-48d1-b1da-b70cd02c04f6" />
+<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/bbbaafaf-d015-4f44-a85f-7fc5180296e6" />
 
 ``` r
 model_full <- betareg::betareg(sample ~ group, data = beta2_data, )
@@ -402,7 +402,7 @@ invg_data <- data.frame(sample = c(rmutil::rinvgauss(N/2, .5, 2), rmutil::rinvga
 plot_data(invg_data, title = "Inverse Gaussian")
 ```
 
-<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/83ca53a8-cf5e-4c39-a405-c7f8ba5c44b1" />
+<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/cc061a1d-b412-4242-bddc-a1ff511f0716" />
 
 ``` r
 model_full <- glm(sample ~ group, family = inverse.gaussian(link = "1/mu^2"), data = invg_data)
@@ -462,7 +462,7 @@ quasibin_data <- data.frame(sample = c(runif(N/2, 0, 0.6), runif(N/2, 0.1, 0.6))
 plot_data(quasibin_data, title = "quasi binomial")
 ```
 
-<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/c21e4fdb-9c03-464d-a169-6a08a86ea1cd" />
+<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/64d57f10-c0cc-4928-82c8-8ff7c87273be" />
 
 ``` r
 model_full <- glm(sample ~ group, family = quasibinomial(link = "logit"), data = quasibin_data)
@@ -518,7 +518,7 @@ negbin_data <- data.frame(sample = c(MASS::rnegbin(N/2, 5, 1), MASS::rnegbin(N/2
 plot_data(negbin_data, title = "Negative binomial")
 ```
 
-<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/f267fa34-a077-498d-a972-9fdb693508d1" />
+<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/e6f4b324-0d71-4aed-8c74-c3ae60622e7f" />
 
 ``` r
 model_full <- MASS::glm.nb(sample ~ group, data = negbin_data)
