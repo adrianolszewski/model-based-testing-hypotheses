@@ -20,6 +20,8 @@ Unfortunately, sometimes even such excellent monographs as Sheskin's Handbook of
 
 Professors Nelder and Wedderburn, the creators of the Generalized Linear Model, Professors McFadden and Berkson, Sir David Cox - they all are turning in their graves hearing these nonsenses...
 
+------------------
+
 # Examples
 
 Okay, so let's see some parametric tests on data with a very... NOT NORMAL distributions.
@@ -63,6 +65,7 @@ plot_data <- function(data, title, bins = 10) {
             x = "Theoretical Quantiles", y = "Sample Quantiles"))
 }
 ```
+------------------
 
 ## Poisson
 
@@ -122,6 +125,58 @@ anova(model_null, model_full, test = "Rao")
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
+``` r
+#---------------------------------------------------
+# Exemplary diagnostics
+# do NOT use deviance residuals for discrete data:
+car::qqPlot(residuals(model_full, type = "deviance"))
+```
+<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/c0830198-3872-45b6-a224-650a8f9c5914" />
+
+```
+## [1] 41 34
+```
+
+``` r
+# only the DHARMa (permuted quantile residuals)
+DHARMa::testResiduals(DHARMa::simulateResiduals(model_full))
+```
+<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/ef913c31-3428-422f-b1de-00ed7befddf4" />
+
+```
+## $uniformity
+## 
+##  Asymptotic one-sample Kolmogorov-Smirnov test
+## 
+## data:  simulationOutput$scaledResiduals
+## D = 0.040587, p-value = 0.9965
+## alternative hypothesis: two-sided
+## 
+## 
+## $dispersion
+## 
+##  DHARMa nonparametric dispersion test via sd of residuals fitted vs.
+##  simulated
+## 
+## data:  simulationOutput
+## dispersion = 0.92236, p-value = 0.776
+## alternative hypothesis: two.sided
+## 
+## 
+## $outliers
+## 
+##  DHARMa bootstrapped outlier test
+## 
+## data:  simulationOutput
+## outliers at both margin(s) = 0, observations = 100, p-value = 1
+## alternative hypothesis: two.sided
+##  percent confidence interval:
+##  0.00 0.01
+## sample estimates:
+## outlier frequency (expected: 0.0028 ) 
+##                                     0
+```
+------------------
 
 ### Gamma 1
 
@@ -178,6 +233,7 @@ anova(model_null, model_full, test = "Rao")
 ## 1        99     196.73                             
 ## 2        98     196.59  1  0.13367 0.13358   0.7665
 ```
+------------------
 
 ### Beta 1
 
@@ -236,6 +292,7 @@ lmtest::lrtest(model_null, model_full)
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
+------------------
 
 ### Beta 2
 
@@ -295,6 +352,7 @@ lmtest::lrtest(model_null, model_full)
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
+------------------
 
 ### Bernoulli
 
@@ -383,6 +441,7 @@ anova(model_null, model_full, test = "Rao")
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
+------------------
 
 ### Inverse Gaussian
 
@@ -450,6 +509,7 @@ anova(model_null, model_full, test = "Rao")
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
+------------------
 
 ### data suitable for quasi binomial (fractional logit)
 
@@ -506,6 +566,7 @@ anova(model_null, model_full, test = "Rao")
 ## 1        99     12.576                             
 ## 2        98     12.307  1  0.26843 0.26823   0.1252
 ```
+------------------
 
 ### Negative binomial
 
@@ -547,6 +608,7 @@ anova(model_null, model_full)
 ## 2 group 1.0570542        98       -625.3037 1 vs 2     1 6.322369 0.01192242
 ```
 
+------------------
 
 ### A bonus: contingency table analysed via the Chi2 test vs Poisson GLM + Rao score test
 
@@ -594,6 +656,7 @@ anova(model_null, model_full, test = "Rao")
 ## 1         2     1.7124                            
 ## 2         0     0.0000  2   1.7124 1.7067    0.426
 ```
+------------------
 
 ### A bonus: multinomial logistic regression (yes, it's still parametric!):
 
