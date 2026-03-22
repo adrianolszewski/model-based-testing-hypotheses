@@ -134,7 +134,7 @@ gamma1_data <- data.frame(sample = c(rgamma(N/2, shape = 1, rate = 2), rgamma(N/
 plot_data(gamma1_data, title = "Gamma")
 ```
 
-<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/ee557b72-79c4-4639-86f3-bab3b482d957" />
+<img width="672" height="480" alt="obraz" src="https://github.com/user-attachments/assets/f0cfc237-b615-491f-905a-da8686ff4c60" />
 
 ``` r
 model_full <- glm(sample ~ group, family = Gamma(link = "inverse"), data = gamma1_data)
